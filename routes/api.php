@@ -13,23 +13,21 @@ use Illuminate\Http\Request;
 |
 */
 
-Route::group(['middleware' => ['json.response']], function () {
-
-    Route::middleware('auth:api')->get('/user', function (Request $request) {
+    /*Route::middleware('auth:api')->get('/user', function (Request $request) {
         return $request->user();
-    });
+    });*/
 
     Route::get('/provider/{provider}', 'Api\AuthController@redirectToProvider')->name('redirectToProvider');
     Route::get('/provider/{provider}/callback', 'Api\AuthController@handleProviderCallback');
 
-    // public routes
-    Route::post('/login', 'Api\AuthController@login')->name('login.api');
-    Route::post('/register', 'Api\AuthController@register')->name('register.api');
+    Route::post('login', 'Api\AuthController@login');
+    Route::post('register', 'Api\AuthController@register');
 
-    // private routes
-    Route::middleware('auth:api')->group(function () {
-        Route::get('/logout', 'Api\AuthController@logout')->name('logout');
-    });
-
+Route::group(['middleware' => 'auth.jwt'], function () {
+    Route::get('logout', 'Api\AuthController@logout');
+    Route::post('logout', 'Api\AuthController@logout');
+    Route::post('refresh', 'Api\AuthController@refresh');
+    Route::post('me', 'Api\AuthController@me');
 });
+
 

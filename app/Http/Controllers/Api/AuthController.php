@@ -7,12 +7,18 @@ use App\Http\Controllers\Controller;
 use App\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Validator;
 use Laravel\Socialite\Facades\Socialite;
 use App\Http\Controllers\Api\SocialAccountsService;
+use Tymon\JWTAuth\Exceptions\JWTException;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class AuthController extends Controller
 {
+
+    /**
+     * @var bool
+     */
+    public $loginAfterSignUp = true;
 
     /**
      * Redirect the user to the Google authentication page.
@@ -49,54 +55,96 @@ class AuthController extends Controller
         return redirect()->to('/home');
     }
 
-    public function login (Request $request) {
+    /**
+     * Get a JWT via given credentials.
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function login(Request $request)
+    {
+        $credentials = $request->only('email', 'password');
 
-        $user = User::where('email', $request->email)->first();
-        if ($user) {
-
-            if (Hash::check($request->password, $user->password)) {
-                $token = $user->createToken('Laravel Password Grant Client')->accessToken;
-                $response = ['token' => $token];
-                return response($response, 200);
-            } else {
-                $response = "Password missmatch";
-                return response($response, 422);
+        try {
+            if (!$token = JWTAuth::attempt($credentials)) {
+                return response()->json(['error' => 'Invalid email or password'], 401);
             }
-
-        } else {
-            $response = 'User does not exist';
-            return response($response, 422);
+        } catch (JWTException $e) {
+            return response()->json(['error' => 'Could not create token'], 500);
         }
+
+        return $this->respondWithToken($token);
+    }
+
+    /**
+     * Registration
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+
+    public function register (Request $request)
+    {
+        $user = new User();
+        $user->name = $request->name;
+        $user->email = $request->email;
+        $user->password = bcrypt($request->password);
+        $user->save();
+
+        if ($this->loginAfterSignUp) {
+            return $this->login($request);
+        }
+
+        $token = JWTAuth::fromUser($user);
+
+        return $this->respondWithToken($token);
 
     }
 
-    public function register (Request $request) {
+    /**
+     * Get the authenticated User.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function me()
+    {
+        return response()->json(auth()->user());
+    }
 
-        $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:6|confirmed',
+    /**
+     * Log the user out (Invalidate the token).
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function logout()
+    {
+        auth()->logout();
+
+        return response()->json(['message' => 'Successfully logged out']);
+    }
+
+    /**
+     * Refresh a token.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function refresh()
+    {
+        return $this->respondWithToken(auth()->refresh());
+    }
+
+    /**
+     * Get the token array structure.
+     *
+     * @param  string $token
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    protected function respondWithToken($token)
+    {
+        return response()->json([
+            'access_token' => $token,
+            'token_type' => 'bearer',
+            'expires_in' => auth()->factory()->getTTL() * 60
         ]);
-
-        if ($validator->fails())
-        {
-            return response(['errors'=>$validator->errors()->all()], 422);
-        }
-
-        $request['password']=Hash::make($request['password']);
-        $user = User::create($request->toArray());
-
-        return redirect()->to('/home');
-
-    }
-
-    public function logout (Request $request) {
-
-        $token = $request->user()->token();
-        $token->revoke();
-
-        $response = 'You have been successfully logged out!';
-        return response($response, 200);
-
     }
 }
