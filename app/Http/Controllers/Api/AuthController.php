@@ -6,8 +6,10 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\User;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Validator;
 use Laravel\Socialite\Facades\Socialite;
+use App\Http\Controllers\Api\SocialAccountsService;
 
 class AuthController extends Controller
 {
@@ -19,45 +21,37 @@ class AuthController extends Controller
      */
     public function redirectToProvider($provider)
     {
-        return Socialite::driver($provider)
-            //->with(['redirect_uri' => "http://localhost:8000/api/provider/".$provider."/callback"])
-            ->redirect();
+        return Socialite::driver($provider)->redirect();
     }
 
     /**
-     * Obtain the user information from Google.
+     * Obtain the user information from SocialMedia.
      *
+     * @param \App\Http\Controllers\Api\SocialAccountsService $accountService
+     * @param $provider
      * @return \Illuminate\Http\Response
      */
-    public function handleProviderCallback($provider)
+    public function handleProviderCallback(SocialAccountsService $accountService, $provider)
     {
         try {
-            $user = Socialite::driver($provider)->user();
+            $user = Socialite::with($provider)->user();
         } catch (\Exception $e) {
             return redirect('/login');
         }
 
-        $existingUser = User::where('email', $user->email)->first(); // check if they're an existing user
+        $authUser = $accountService->findOrCreate(
+            $user,
+            $provider
+        );
 
-        if($existingUser){
-            // log them in
-            auth()->login($existingUser, true);
-        } else {
-            // create a new user
-            $newUser                  = new User;
-            $newUser->name            = $user->name;
-            $newUser->email           = $user->email;
-            $newUser->avatar          = $user->avatar;
-            $newUser->avatar_original = $user->avatar_original;
-            $newUser->save();         auth()->login($newUser, true);
-        }
+        auth()->login($authUser, true);
+
         return redirect()->to('/home');
     }
 
     public function login (Request $request) {
 
         $user = User::where('email', $request->email)->first();
-
         if ($user) {
 
             if (Hash::check($request->password, $user->password)) {
@@ -92,10 +86,7 @@ class AuthController extends Controller
         $request['password']=Hash::make($request['password']);
         $user = User::create($request->toArray());
 
-        $token = $user->createToken('Laravel Password Grant Client')->accessToken;
-        $response = ['token' => $token];
-
-        return response($response, 200);
+        return redirect()->to('/home');
 
     }
 
@@ -104,7 +95,7 @@ class AuthController extends Controller
         $token = $request->user()->token();
         $token->revoke();
 
-        $response = 'You have been succesfully logged out!';
+        $response = 'You have been successfully logged out!';
         return response($response, 200);
 
     }

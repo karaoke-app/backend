@@ -19,8 +19,6 @@ Route::group(['middleware' => ['json.response']], function () {
         return $request->user();
     });
 
-    Route::get('/home', 'HomeController@index')->name('home');
-
     Route::get('/provider/{provider}', 'Api\AuthController@redirectToProvider')->name('redirectToProvider');
     Route::get('/provider/{provider}/callback', 'Api\AuthController@handleProviderCallback');
 
