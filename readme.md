@@ -5,3 +5,5 @@
 # karaoke-app
 
 Backend for the karaoke web application made with Laravel 6
+
+[![Build Status](https://travis-ci.com/karaoke-app/backend.svg?branch=dev)](https://travis-ci.com/karaoke-app/backend)
