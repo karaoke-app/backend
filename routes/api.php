@@ -28,6 +28,12 @@ Route::group(['middleware' => 'auth.jwt'], function () {
     Route::post('logout', 'Api\AuthController@logout');
     Route::post('refresh', 'Api\AuthController@refresh');
     Route::post('me', 'Api\AuthController@me');
+
+    Route::get('songs', 'SongController@index');
+    Route::get('songs/{id}', 'SongController@show');
+    Route::post('songs', 'SongController@store');
+    Route::put('songs/{id}', 'SongController@update');
+    Route::delete('songs/{id}', 'SongController@destroy');
 });
 
 
