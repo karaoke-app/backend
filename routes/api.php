@@ -34,6 +34,8 @@ Route::group(['middleware' => 'auth.jwt'], function () {
     Route::post('songs', 'SongController@store');
     Route::put('songs/{id}', 'SongController@update');
     Route::delete('songs/{id}', 'SongController@destroy');
+
+    Route::post('songs/{id}/ratings', 'RatingController@store');
 });
 
 
