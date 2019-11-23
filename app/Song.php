@@ -17,7 +17,11 @@ class Song extends Model
     protected $guarded = [];
 
     protected $fillable = [
-        'title', 'songText', 'category',
+        'title', 'songText', 'category', 'artist',
+    ];
+
+    protected $casts = [
+        'songText' => 'array'
     ];
 
     public function user()

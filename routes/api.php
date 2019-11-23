@@ -30,12 +30,19 @@ Route::group(['middleware' => 'auth.jwt'], function () {
     Route::post('me', 'Api\AuthController@me');
 
     Route::get('songs', 'SongController@index');
+    Route::get('songs/status', 'SongController@verify');
     Route::get('songs/{id}', 'SongController@show');
+    Route::get('songs/user/{user_id}', 'SongController@userSongs');
     Route::post('songs', 'SongController@store');
     Route::put('songs/{id}', 'SongController@update');
     Route::delete('songs/{id}', 'SongController@destroy');
 
     Route::post('songs/{id}/ratings', 'RatingController@store');
+    Route::get('ratings', 'RatingController@show');
+
+    Route::get('users', 'UserController@index');
+    Route::get('users/{id}', 'UserController@show');
+    Route::delete('users/{id}', 'UserController@destroy');
 });
 
 

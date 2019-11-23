@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Song;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
 class SongController extends Controller
@@ -28,7 +29,19 @@ class SongController extends Controller
      */
     public function index()
     {
-        $songs = $this->user->songs()->get(['title', 'songText', 'category'])->toArray();
+        $songs = $this->user->songs()->get(['artist', 'title', 'songText', 'category'])->toArray();
+
+        return $songs;
+    }
+
+    /**
+     * Display a listing of songs that needs to be verified.
+     *
+     * @return Response
+     */
+    public function verify()
+    {
+        $songs = $this->user->songs()->where('is_accepted', '0')->get(['artist', 'title', 'songText', 'category'])->toArray();
 
         return $songs;
     }
@@ -53,6 +66,26 @@ class SongController extends Controller
     }
 
     /**
+     * Display a listing of songs that were uploaded by a specific user.
+     *
+     * @return Response
+     */
+    public function userSongs($user_id)
+    {
+        $song = $this->user->songs()->find($user_id);
+
+        if (!$song) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Sorry, this user did not upload any songs or user does not exist.'
+            ], 400);
+        }
+        $song = $this->user->songs()->find($user_id)->get(['artist', 'title', 'songText', 'category', 'is_accepted'])->toArray();
+
+        return $song;
+    }
+
+    /**
      * Store a newly created song.
      *
      * @param Request $request
@@ -62,15 +95,20 @@ class SongController extends Controller
     public function store(Request $request)
     {
         $this->validate($request, [
+            'artist' => 'required',
             'title' => 'required',
             'songText' => 'required',
             'category' => 'required',
         ]);
 
         $song = new Song();
+        $song->artist = $request->artist;
         $song->title = $request->title;
         $song->songText = $request->songText;
         $song->category = $request->category;
+        $song->is_accepted = 0;
+        $merge = $request->artist . ' ' . $request->title;
+        $song->slug = Str::slug($merge, '-');
 
         if ($this->user->songs()->save($song))
             return response()->json([

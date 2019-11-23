@@ -9,9 +9,14 @@ use App\Rating;
 class RatingController extends Controller
 {
     protected $user;
+    protected $song;
 
     public function store(Request $request)
     {
+        $this->validate($request, [
+            'rate' => 'required',
+        ]);
+
         $song = Song::find($request->id);
 
         $rating = new Rating();

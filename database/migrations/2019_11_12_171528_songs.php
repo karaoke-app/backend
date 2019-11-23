@@ -17,8 +17,11 @@ class Songs extends Migration
             $table->increments('id');
             $table->unsignedInteger('user_id');
             $table->string('title');
-            $table->text('songText');
+            $table->json('songText');
             $table->string('category');
+            $table->string('artist');
+            $table->string('slug');
+            $table->boolean('is_accepted');
             $table->foreign('user_id')
                 ->references('id')
                 ->on('users')
