@@ -10,13 +10,15 @@ Backend for the karaoke web application made with Laravel 6
 
 ## Requirements
 
-## Installation
+- PHP >= 7.2
+- MySQL 5.7
+- Composer
 
-Clone repository
+## Getting started
 
-```sh
-git clone https://github.com/karaoke-app/backend.git
-```
+We're using _Docker_ with _Docker Compose_ for local developement
+
+### Installation
 
 Build and run docker containers in background
 
@@ -31,6 +33,7 @@ docker-compose exec php-fpm composer install
 ```
 
 Create .env file
+
 ```sh
 cp .env.example .env
 ```
@@ -38,10 +41,13 @@ cp .env.example .env
 Generate app key
 
 ```sh
-docker-compose exec php-fpm artisan key:generate
+docker-compose exec php-fpm php artisan key:generate
 ```
 
 Run database migrations
 
 ```sh
-docker-compose exec php-fpm artisan migrate:fresh
+docker-compose exec php-fpm php artisan migrate:fresh
+```
+
+You're ready to go. The API should be available at http://localhost:8080/api
