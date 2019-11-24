@@ -29,5 +29,3 @@ Route::group(['middleware' => 'auth.jwt'], function () {
     Route::post('refresh', 'Api\AuthController@refresh');
     Route::post('me', 'Api\AuthController@me');
 });
-
-

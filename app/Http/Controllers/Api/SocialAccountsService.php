@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\Api;
+
 use App\LinkedSocialAccount;
 use App\User;
 use Laravel\Socialite\Contracts\User as ProviderUser;
@@ -16,7 +17,6 @@ class SocialAccountsService
         if ($account) {
             return $account->user;
         } else {
-
             $user = User::where('email', $providerUser->getEmail())->first();
 
             if (! $user) {
@@ -32,7 +32,6 @@ class SocialAccountsService
             ]);
 
             return $user;
-
         }
     }
 }
