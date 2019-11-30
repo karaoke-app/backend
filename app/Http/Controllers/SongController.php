@@ -29,7 +29,7 @@ class SongController extends Controller
      */
     public function index()
     {
-        $songs = $this->user->songs()->get(['artist', 'title', 'songText', 'category'])->toArray();
+        $songs = $this->user->songs()->get(['artist', 'title', 'cues', 'category'])->toArray();
 
         return $songs;
     }
@@ -41,7 +41,7 @@ class SongController extends Controller
      */
     public function verify()
     {
-        $songs = $this->user->songs()->where('is_accepted', '0')->get(['artist', 'title', 'songText', 'category'])->toArray();
+        $songs = $this->user->songs()->where('is_accepted', '0')->get(['artist', 'title', 'cues', 'category'])->toArray();
 
         return $songs;
     }
@@ -80,7 +80,7 @@ class SongController extends Controller
                 'message' => 'Sorry, this user did not upload any songs or user does not exist.'
             ], 400);
         }
-        $song = $this->user->songs()->find($user_id)->get(['artist', 'title', 'songText', 'category', 'is_accepted'])->toArray();
+        $song = $this->user->songs()->find($user_id)->get(['artist', 'title', 'cues', 'category', 'is_accepted'])->toArray();
 
         return $song;
     }
@@ -97,14 +97,14 @@ class SongController extends Controller
         $this->validate($request, [
             'artist' => 'required',
             'title' => 'required',
-            'songText' => 'required',
+            'cues' => 'required',
             'category' => 'required',
         ]);
 
         $song = new Song();
         $song->artist = $request->artist;
         $song->title = $request->title;
-        $song->songText = $request->songText;
+        $song->cues = $request->cues;
         $song->category = $request->category;
         $song->is_accepted = 0;
         $merge = $request->artist . ' ' . $request->title;

@@ -7,7 +7,6 @@ use App\User;
 
 class UserController extends Controller
 {
-    protected $user;
 
     public function index()
     {
