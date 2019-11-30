@@ -142,7 +142,8 @@ class PlaylistController extends Controller
 
         if ($playlist->songs()->detach($song)) {
             return response()->json([
-                'success' => true
+                'success' => true,
+                'message' => 'Song from given playlist was successfully removed.'
             ]);
         } else {
             return response()->json([

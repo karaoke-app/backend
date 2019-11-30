@@ -4,12 +4,12 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Playlist extends Model
+class Category extends Model
 {
     /**
      * @var string
      */
-    protected $table = 'playlists';
+    protected $table = 'categories';
     protected $hidden = ['pivot'];
 
     /**
@@ -23,6 +23,6 @@ class Playlist extends Model
 
     public function songs()
     {
-        return $this->belongsToMany(Song::class, 'playlist_songs');
+        return $this->belongsToMany(Song::class, 'song_categories');
     }
 }

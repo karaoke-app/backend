@@ -50,6 +50,13 @@ Route::group(['middleware' => 'auth.jwt'], function () {
     Route::post('playlists/{playlist_id}/{id}', 'PlaylistController@add');
     Route::delete('playlists/{id}', 'PlaylistController@destroy');
     Route::get('playlists/{playlist}/{id}', 'PlaylistController@remove');
+
+    Route::get('categories', 'CategoryController@index');
+    Route::get('categories/{id}', 'CategoryController@show');
+    Route::post('categories', 'CategoryController@create');
+    Route::post('categories/{category_id}/{id}', 'CategoryController@add');
+    Route::delete('categories/{id}', 'CategoryController@destroy');
+    Route::get('categories/{category}/{id}', 'CategoryController@remove');
 });
 
 
