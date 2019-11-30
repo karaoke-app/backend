@@ -18,8 +18,9 @@ class Songs extends Migration
             $table->unsignedInteger('user_id');
             $table->string('title');
             $table->json('cues');
-            $table->string('category');
             $table->string('artist');
+            $table->string('provider_id');
+            $table->string('video_id');
             $table->string('slug');
             $table->boolean('is_accepted');
             $table->foreign('user_id')

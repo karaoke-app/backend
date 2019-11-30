@@ -29,7 +29,7 @@ class SongController extends Controller
      */
     public function index()
     {
-        $songs = $this->user->songs()->get(['artist', 'title', 'cues', 'category'])->toArray();
+        $songs = $this->user->songs()->get(['artist', 'title', 'cues'])->toArray();
 
         return $songs;
     }
@@ -41,7 +41,7 @@ class SongController extends Controller
      */
     public function verify()
     {
-        $songs = $this->user->songs()->where('is_accepted', '0')->get(['artist', 'title', 'cues', 'category'])->toArray();
+        $songs = $this->user->songs()->where('is_accepted', '0')->get(['artist', 'title', 'cues'])->toArray();
 
         return $songs;
     }
@@ -68,7 +68,7 @@ class SongController extends Controller
     /**
      * Display a listing of songs that were uploaded by a specific user.
      *
-     * @return Response
+     * @return \Illuminate\Http\JsonResponse
      */
     public function userSongs($user_id)
     {
@@ -80,7 +80,7 @@ class SongController extends Controller
                 'message' => 'Sorry, this user did not upload any songs or user does not exist.'
             ], 400);
         }
-        $song = $this->user->songs()->find($user_id)->get(['artist', 'title', 'cues', 'category', 'is_accepted'])->toArray();
+        $song = $this->user->songs()->find($user_id)->get(['artist', 'title', 'cues', 'is_accepted'])->toArray();
 
         return $song;
     }
@@ -98,17 +98,29 @@ class SongController extends Controller
             'artist' => 'required',
             'title' => 'required',
             'cues' => 'required',
-            'category' => 'required',
+            'link' => 'required',
         ]);
 
         $song = new Song();
         $song->artist = $request->artist;
         $song->title = $request->title;
         $song->cues = $request->cues;
-        $song->category = $request->category;
         $song->is_accepted = 0;
         $merge = $request->artist . ' ' . $request->title;
         $song->slug = Str::slug($merge, '-');
+
+        if($contains = Str::contains($link = $request->link, 'youtube'))
+        {
+            $song->provider_id = 'youtube';
+            $video = $song->video_id = explode("?v=", $link);
+            $song->video_id = $video[1];
+        }
+        else
+        {
+            $song->provider_id = 'vimeo';
+            $video = $song->video_id = explode(".com/", $link);
+            $song->video_id = $video[1];
+        }
 
         if ($this->user->songs()->save($song))
             return response()->json([
