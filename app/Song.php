@@ -10,6 +10,7 @@ class Song extends Model
      * @var string
      */
     protected $table = 'songs';
+    protected $hidden = ['pivot'];
 
     /**
      * @var array
@@ -17,7 +18,7 @@ class Song extends Model
     protected $guarded = [];
 
     protected $fillable = [
-        'title', 'cues', 'category', 'artist',
+        'title', 'cues', 'is_accepted', 'artist',
     ];
 
     protected $casts = [

@@ -10,6 +10,7 @@ class Playlist extends Model
      * @var string
      */
     protected $table = 'playlists';
+    protected $hidden = ['pivot'];
 
     /**
      * @var array

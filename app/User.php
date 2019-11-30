@@ -71,4 +71,12 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->hasMany(Song::class);
     }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function playlists()
+    {
+        return $this->hasMany(Playlist::class);
+    }
 }

@@ -41,7 +41,7 @@ class SongController extends Controller
      */
     public function verify()
     {
-        $songs = $this->user->songs()->where('is_accepted', '0')->get(['artist', 'title', 'cues'])->toArray();
+        $songs = $this->user->songs()->where('is_accepted', '0')->get(['artist', 'title', 'cues', 'is_accepted'])->toArray();
 
         return $songs;
     }
@@ -68,11 +68,12 @@ class SongController extends Controller
     /**
      * Display a listing of songs that were uploaded by a specific user.
      *
+     * @param Song $user_id
      * @return \Illuminate\Http\JsonResponse
      */
-    public function userSongs($user_id)
+    public function userSongs(Song $user_id)
     {
-        $song = $this->user->songs()->find($user_id);
+        $song = $this->user->songs()->get($user_id);
 
         if (!$song) {
             return response()->json([
@@ -80,9 +81,10 @@ class SongController extends Controller
                 'message' => 'Sorry, this user did not upload any songs or user does not exist.'
             ], 400);
         }
-        $song = $this->user->songs()->find($user_id)->get(['artist', 'title', 'cues', 'is_accepted'])->toArray();
-
-        return $song;
+        else
+        {
+            return $song = $this->user->songs()->get(['artist', 'title', 'cues', 'is_accepted'])->toArray();
+        }
     }
 
     /**
@@ -111,21 +113,28 @@ class SongController extends Controller
 
         if($contains = Str::contains($link = $request->link, 'youtube'))
         {
-            $song->provider_id = 'youtube';
+            $song->provider_id = '1';
             $video = $song->video_id = explode("?v=", $link);
+            $song->video_id = $video[1];
+        }
+        else if($contains = Str::contains($link = $request->link, 'vimeo'))
+        {
+            $song->provider_id = '2';
+            $video = $song->video_id = explode(".com/", $link);
             $song->video_id = $video[1];
         }
         else
         {
-            $song->provider_id = 'vimeo';
-            $video = $song->video_id = explode(".com/", $link);
-            $song->video_id = $video[1];
+            return response()->json([
+                'success' => false,
+                'message' => 'Please give an URL from either Vimeo or Youtube.'
+            ], 500);
         }
 
         if ($this->user->songs()->save($song))
             return response()->json([
                 'success' => true,
-                'task' => $song
+                'song' => $song
             ]);
         else
             return response()->json([
@@ -138,21 +147,19 @@ class SongController extends Controller
      * Update the specified song.
      *
      * @param Request $request
-     * @param $id
+     * @param Song $song
      * @return \Illuminate\Http\JsonResponse
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, Song $song)
     {
-        $song = $this->user->songs()->find($id);
-
         if (!$song) {
             return response()->json([
                 'success' => false,
-                'message' => 'Sorry, song with id ' . $id . ' cannot be found.'
+                'message' => 'Sorry, song cannot be found.'
             ], 400);
         }
 
-        $updated = $song->fill($request->all())->save();
+        $updated = $song->update($request->only(['title', 'cues', 'artist', 'is_accepted']));
 
         if ($updated) {
             return response()->json([

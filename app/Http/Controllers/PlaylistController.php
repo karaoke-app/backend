@@ -10,11 +10,6 @@ use Illuminate\Support\Facades\Auth;
 class PlaylistController extends Controller
 {
     /**
-     * @var
-     */
-    protected $song;
-
-     /**
      * Create a new playlist.
      *
      * @param Request $request
@@ -34,12 +29,52 @@ class PlaylistController extends Controller
 
         $playlist->save();
 
-        $songs = Song::find([2,3]);
-        $playlist->songs()->attach($songs);
+        return response()->json([
+            'success' => true,
+            'playlist' => $playlist
+        ]);
+    }
+
+    /**
+     * Add song to a playlist.
+     *
+     * @param Playlist $playlist_id
+     * @param Song $id
+     * @return \Illuminate\Http\JsonResponse
+     * @throws \Illuminate\Validation\ValidationException
+     */
+    public function add($playlist_id, $id)
+    {
+        $playlist = Playlist::find($playlist_id);
+
+        if ((string)Auth::user()->id !== $playlist->user_id)
+        {
+            return response()->json([
+                'error' => 'You can only edit your own playlist.'
+            ], 403);
+        }
+
+        if (!$playlist) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Sorry, playlist with given id does not exist.'
+            ], 400);
+        }
+
+        $song = Song::where('id', $id)->get();
+
+        if (!$song) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Sorry, song with given id does not exist.'
+            ], 400);
+        }
+
+        $playlist->songs()->attach($song);
 
         return response()->json([
             'success' => true,
-            'task' => $playlist
+            'message' => 'Song was added to the playlist.'
         ]);
     }
 
@@ -52,6 +87,13 @@ class PlaylistController extends Controller
     public function destroy($id)
     {
         $playlist = Playlist::find($id);
+
+        if ((string)Auth::user()->id !== $playlist->user_id)
+        {
+            return response()->json([
+                'error' => 'You can only delete your own playlist.'
+            ], 403);
+        }
 
         if (!$playlist) {
             return response()->json([
@@ -76,12 +118,20 @@ class PlaylistController extends Controller
      * Remove the specified song from specified playlist.
      *
      * @param Playlist $playlist
+     * @param Song $id
      * @return \Illuminate\Http\JsonResponse
      * @throws \Exception
      */
-    public function remove(Playlist $playlist)
+    public function remove(Playlist $playlist, $id)
     {
-        $song = Song::find(2);
+        $song = Song::find($id);
+
+        if ((string)Auth::user()->id !== $playlist->user_id)
+        {
+            return response()->json([
+                'error' => 'You can only delete your own playlist.'
+            ], 403);
+        }
 
         if (!$playlist) {
             return response()->json([
@@ -100,5 +150,40 @@ class PlaylistController extends Controller
                 'message' => 'Song from given playlist could not be deleted.'
             ], 500);
         }
+    }
+
+    /**
+     * Display a listing of playlists.
+     *
+     * @return Response
+     */
+    public function index()
+    {
+        $playlist = Playlist::get(['name'])->toArray();
+        return $playlist;
+    }
+
+    /**
+     * Display songs from specified playlist
+     * @param $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function show($id)
+    {
+        $playlist = Playlist::find($id);
+
+        if (!$playlist) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Sorry, playlist with id ' . $id . ' cannot be found.'
+            ], 400);
+        }
+
+        $currentPlaylist = $playlist->songs()->get(['title', 'artist', 'cues'])->toArray();
+
+        return response()->json([
+            'success' => true,
+            'playlist' => $currentPlaylist
+        ]);
     }
 }

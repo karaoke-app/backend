@@ -34,7 +34,7 @@ Route::group(['middleware' => 'auth.jwt'], function () {
     Route::get('songs/{id}', 'SongController@show');
     Route::get('songs/user/{user_id}', 'SongController@userSongs');
     Route::post('songs', 'SongController@store');
-    Route::put('songs/{id}', 'SongController@update');
+    Route::put('songs/{song}', 'SongController@update');
     Route::delete('songs/{id}', 'SongController@destroy');
 
     Route::post('songs/{id}/ratings', 'RatingController@store');
@@ -44,9 +44,12 @@ Route::group(['middleware' => 'auth.jwt'], function () {
     Route::get('users/{id}', 'UserController@show');
     Route::delete('users/{id}', 'UserController@destroy');
 
+    Route::get('playlists', 'PlaylistController@index');
+    Route::get('playlists/{id}', 'PlaylistController@show');
     Route::post('playlists', 'PlaylistController@create');
+    Route::post('playlists/{playlist_id}/{id}', 'PlaylistController@add');
     Route::delete('playlists/{id}', 'PlaylistController@destroy');
-    Route::get('playlists/{playlist}', 'PlaylistController@remove');
+    Route::get('playlists/{playlist}/{id}', 'PlaylistController@remove');
 });
 
 

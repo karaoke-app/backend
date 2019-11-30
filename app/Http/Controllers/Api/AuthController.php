@@ -80,6 +80,7 @@ class AuthController extends Controller
      * Registration
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
+     * @throws \Illuminate\Validation\ValidationException
      */
 
     public function register(Request $request)
