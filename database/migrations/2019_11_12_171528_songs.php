@@ -20,7 +20,7 @@ class Songs extends Migration
             $table->json('cues');
             $table->string('artist');
             $table->string('provider_id');
-            $table->string('video_id');
+            $table->string('video_id')->unique();
             $table->string('slug');
             $table->boolean('is_accepted');
             $table->foreign('user_id')

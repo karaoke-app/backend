@@ -17,11 +17,11 @@ class Song extends Model
     protected $guarded = [];
 
     protected $fillable = [
-        'title', 'songText', 'category', 'artist',
+        'title', 'cues', 'category', 'artist',
     ];
 
     protected $casts = [
-        'songText' => 'array'
+        'cues' => 'array'
     ];
 
     public function user()
@@ -32,5 +32,10 @@ class Song extends Model
     public function ratings()
     {
         return $this->hasMany(Rating::class);
+    }
+
+    public function playlists()
+    {
+        return $this->belongsToMany(Playlist::class, 'playlist_songs');
     }
 }

@@ -43,6 +43,10 @@ Route::group(['middleware' => 'auth.jwt'], function () {
     Route::get('users', 'UserController@index');
     Route::get('users/{id}', 'UserController@show');
     Route::delete('users/{id}', 'UserController@destroy');
+
+    Route::post('playlists', 'PlaylistController@create');
+    Route::delete('playlists/{id}', 'PlaylistController@destroy');
+    Route::get('playlists/{playlist}', 'PlaylistController@remove');
 });
 
 
