@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Requests\AuthRequest;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\User;
@@ -46,8 +47,6 @@ class AuthController extends Controller
             $provider
         );
 
-        //auth()->login($authUser, true);
-
         $token = JWTAuth::fromUser($authUser);
 
         return $this->respondWithToken($token);
@@ -81,15 +80,8 @@ class AuthController extends Controller
      * @throws \Illuminate\Validation\ValidationException
      */
 
-    public function register(Request $request)
+    public function register(AuthRequest $request)
     {
-        $this->validate($request, [
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255'],
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
-        ]);
-
-
         $user = new User();
         $user->name = $request->name;
         $user->email = $request->email;
@@ -150,7 +142,7 @@ class AuthController extends Controller
             'access_token' => $token,
             'token_type' => 'bearer',
             'expires_in' => auth()->factory()->getTTL() * 60
-        ]);
+        ], 201);
     }
 }
 
