@@ -35,24 +35,22 @@ class AuthController extends Controller
      *
      * @param \App\Http\Controllers\Api\SocialAccountsService $accountService
      * @param $provider
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
     public function handleProviderCallback(SocialAccountsService $accountService, $provider)
     {
-        try {
-            $user = Socialite::with($provider)->user();
-        } catch (\Exception $e) {
-            return redirect('/login');
-        }
+        $user = Socialite::with($provider)->user();
 
         $authUser = $accountService->findOrCreate(
             $user,
             $provider
         );
 
-        auth()->login($authUser, true);
+        //auth()->login($authUser, true);
 
-        return redirect()->to('/home');
+        $token = JWTAuth::fromUser($authUser);
+
+        return $this->respondWithToken($token);
     }
 
     /**
@@ -85,6 +83,13 @@ class AuthController extends Controller
 
     public function register(Request $request)
     {
+        $this->validate($request, [
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'email', 'max:255'],
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
+        ]);
+
+
         $user = new User();
         $user->name = $request->name;
         $user->email = $request->email;
@@ -148,3 +153,4 @@ class AuthController extends Controller
         ]);
     }
 }
+
