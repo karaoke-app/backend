@@ -37,11 +37,11 @@ class Song extends Model
 
     public function playlists()
     {
-        return $this->belongsToMany(Playlist::class, 'playlist_songs');
+        return $this->belongsToMany(Playlist::class, 'playlist_song');
     }
 
     public function categories()
     {
-        return $this->belongsToMany(Category::class, 'song_categories');
+        return $this->belongsToMany(Category::class, 'category_song');
     }
 }

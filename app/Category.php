@@ -23,6 +23,6 @@ class Category extends Model
 
     public function songs()
     {
-        return $this->belongsToMany(Song::class, 'song_categories');
+        return $this->belongsToMany(Song::class, 'category_song');
     }
 }

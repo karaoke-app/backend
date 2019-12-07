@@ -29,7 +29,7 @@ class SongController extends Controller
      */
     public function index()
     {
-        $songs = $this->user->songs()->get(['artist', 'title', 'cues'])->toArray();
+        $songs = Song::get(['artist', 'title', 'cues'])->toArray();
 
         return $songs;
     }
@@ -41,7 +41,7 @@ class SongController extends Controller
      */
     public function verify()
     {
-        $songs = $this->user->songs()->where('is_accepted', '0')->get(['artist', 'title', 'cues', 'is_accepted'])->toArray();
+        $songs = Song::where('is_accepted', '0')->get(['artist', 'title', 'cues', 'is_accepted'])->toArray();
 
         return $songs;
     }
@@ -53,7 +53,7 @@ class SongController extends Controller
      */
     public function show($id)
     {
-        $song = $this->user->songs()->find($id);
+        $song = Song::find($id);
 
         if (!$song) {
             return response()->json([
@@ -71,9 +71,9 @@ class SongController extends Controller
      * @param Song $user_id
      * @return \Illuminate\Http\JsonResponse
      */
-    public function userSongs(Song $user_id)
+    public function userSongs($user_id)
     {
-        $song = $this->user->songs()->get($user_id);
+        $song = Song::where('user_id', $user_id)->first();
 
         if (!$song) {
             return response()->json([
@@ -83,7 +83,7 @@ class SongController extends Controller
         }
         else
         {
-            return $song = $this->user->songs()->get(['artist', 'title', 'cues', 'is_accepted'])->toArray();
+            return $song = Song::where('user_id', $user_id)->get(['artist', 'title', 'cues', 'is_accepted'])->toArray();
         }
     }
 
@@ -100,7 +100,8 @@ class SongController extends Controller
             'artist' => 'required',
             'title' => 'required',
             'cues' => 'required',
-            'link' => 'required',
+            'video_id' => 'required',
+            'provider_id' => 'required',
         ]);
 
         $song = new Song();
@@ -108,28 +109,10 @@ class SongController extends Controller
         $song->title = $request->title;
         $song->cues = $request->cues;
         $song->is_accepted = 0;
+        $song->video_id = $request->video_id;
+        $song->provider_id = $request->provider_id;
         $merge = $request->artist . ' ' . $request->title;
         $song->slug = Str::slug($merge, '-');
-
-        if($contains = Str::contains($link = $request->link, 'youtube'))
-        {
-            $song->provider_id = '1';
-            $video = $song->video_id = explode("?v=", $link);
-            $song->video_id = $video[1];
-        }
-        else if($contains = Str::contains($link = $request->link, 'vimeo'))
-        {
-            $song->provider_id = '2';
-            $video = $song->video_id = explode(".com/", $link);
-            $song->video_id = $video[1];
-        }
-        else
-        {
-            return response()->json([
-                'success' => false,
-                'message' => 'Please give an URL from either Vimeo or Youtube.'
-            ], 500);
-        }
 
         if ($this->user->songs()->save($song))
             return response()->json([
@@ -163,7 +146,8 @@ class SongController extends Controller
 
         if ($updated) {
             return response()->json([
-                'success' => true
+                'success' => true,
+                'message' => 'Song has been updated'
             ]);
         } else {
             return response()->json([
@@ -181,7 +165,7 @@ class SongController extends Controller
      */
     public function destroy($id)
     {
-        $song = $this->user->songs()->find($id);
+        $song = Song::find($id);
 
         if (!$song) {
             return response()->json([
@@ -192,7 +176,8 @@ class SongController extends Controller
 
         if ($song->delete()) {
             return response()->json([
-                'success' => true
+                'success' => true,
+                'message' => 'Song was successfully removed'
             ]);
         } else {
             return response()->json([

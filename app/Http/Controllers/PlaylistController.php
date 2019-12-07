@@ -42,17 +42,13 @@ class PlaylistController extends Controller
      * @param Song $id
      * @return \Illuminate\Http\JsonResponse
      * @throws \Illuminate\Validation\ValidationException
+     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function add($playlist_id, $id)
     {
         $playlist = Playlist::find($playlist_id);
 
-        if ((string)Auth::user()->id !== $playlist->user_id)
-        {
-            return response()->json([
-                'error' => 'You can only edit your own playlist.'
-            ], 403);
-        }
+        $this->authorize('add', $playlist);
 
         if (!$playlist) {
             return response()->json([
@@ -83,17 +79,13 @@ class PlaylistController extends Controller
      *
      * @param $id
      * @return \Illuminate\Http\JsonResponse
+     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function destroy($id)
     {
         $playlist = Playlist::find($id);
 
-        if ((string)Auth::user()->id !== $playlist->user_id)
-        {
-            return response()->json([
-                'error' => 'You can only delete your own playlist.'
-            ], 403);
-        }
+        $this->authorize('destroy', $playlist);
 
         if (!$playlist) {
             return response()->json([
@@ -126,12 +118,7 @@ class PlaylistController extends Controller
     {
         $song = Song::find($id);
 
-        if ((string)Auth::user()->id !== $playlist->user_id)
-        {
-            return response()->json([
-                'error' => 'You can only delete your own playlist.'
-            ], 403);
-        }
+        $this->authorize('remove', $playlist);
 
         if (!$playlist) {
             return response()->json([
