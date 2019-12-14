@@ -15,21 +15,13 @@ class SongController extends Controller
     protected $user;
 
     /**
-     * SongController constructor.
-     */
-    public function __construct()
-    {
-        $this->user = JWTAuth::parseToken()->authenticate();
-    }
-
-    /**
      * Display a listing of songs.
      *
      * @return Response
      */
     public function index()
     {
-        $songs = Song::get(['artist', 'title', 'cues'])->toArray();
+        $songs = Song::get(['artist', 'title', 'video_id'])->toArray();
 
         return $songs;
     }
@@ -96,19 +88,10 @@ class SongController extends Controller
      */
     public function store(Request $request)
     {
-        $this->validate($request, [
-            'artist' => 'required',
-            'title' => 'required',
-            'cues' => 'required',
-            'video_id' => 'required',
-            'provider_id' => 'required',
-        ]);
-
         $song = new Song();
         $song->artist = $request->artist;
         $song->title = $request->title;
         $song->cues = $request->cues;
-        $song->is_accepted = 0;
         $song->video_id = $request->video_id;
         $song->provider_id = $request->provider_id;
         $merge = $request->artist . ' ' . $request->title;

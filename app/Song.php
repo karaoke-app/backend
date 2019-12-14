@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Scopes\VerifiedSongScope;
 use Illuminate\Database\Eloquent\Model;
 
 class Song extends Model
@@ -24,6 +25,18 @@ class Song extends Model
     protected $casts = [
         'cues' => 'array'
     ];
+
+    /**
+     * The "booting" method of the model.
+     *
+     * @return void
+     */
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::addGlobalScope(new VerifiedSongScope);
+    }
 
     public function user()
     {
