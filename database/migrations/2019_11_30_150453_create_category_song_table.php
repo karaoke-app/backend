@@ -14,7 +14,7 @@ class CreateCategorySongTable extends Migration
     public function up()
     {
         Schema::create('category_song', function (Blueprint $table) {
-            $table->bigIncrements('id');
+            $table->increments('id');
             $table->unsignedInteger('category_id');
             $table->unsignedInteger('song_id');
             $table->timestamps();
