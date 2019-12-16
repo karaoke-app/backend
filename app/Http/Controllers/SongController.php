@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreSong;
 use App\Song;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -10,18 +11,13 @@ use Tymon\JWTAuth\Facades\JWTAuth;
 class SongController extends Controller
 {
     /**
-     * @var
-     */
-    protected $user;
-
-    /**
      * Display a listing of songs.
      *
      * @return Response
      */
     public function index()
     {
-        $songs = Song::get(['artist', 'title', 'video_id'])->toArray();
+        $songs = Song::get(['id', 'slug', 'artist', 'title'])->toArray();
 
         return $songs;
     }
@@ -45,8 +41,8 @@ class SongController extends Controller
      */
     public function show($id)
     {
-        $song = Song::find($id);
-
+        $song = Song::with('user: id,name,avatar')->find($id);
+dd($song);
         if (!$song) {
             return response()->json([
                 'success' => false,
@@ -75,7 +71,7 @@ class SongController extends Controller
         }
         else
         {
-            return $song = Song::where('user_id', $user_id)->get(['artist', 'title', 'cues', 'is_accepted'])->toArray();
+            return $song = Song::where('user_id', $user_id)->get(['id', 'slug', 'artist', 'title'])->toArray();
         }
     }
 
@@ -86,7 +82,7 @@ class SongController extends Controller
      * @return \Illuminate\Http\JsonResponse
      * @throws \Illuminate\Validation\ValidationException
      */
-    public function store(Request $request)
+    public function store(StoreSong $request)
     {
         $song = new Song();
         $song->artist = $request->artist;
@@ -97,7 +93,7 @@ class SongController extends Controller
         $merge = $request->artist . ' ' . $request->title;
         $song->slug = Str::slug($merge, '-');
 
-        if ($this->user->songs()->save($song))
+        if (auth()->user()->songs()->save($song))
             return response()->json([
                 'success' => true,
                 'song' => $song
