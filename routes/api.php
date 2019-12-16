@@ -63,5 +63,3 @@ Route::group(['middleware' => 'auth.jwt'], function () {
     Route::delete('categories/{id}', 'CategoryController@destroy');
     Route::get('categories/{category}/{id}', 'CategoryController@remove');
 });
-
-

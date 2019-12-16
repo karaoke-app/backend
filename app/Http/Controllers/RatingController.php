@@ -24,15 +24,16 @@ class RatingController extends Controller
         $rating->user_id = auth()->user()->id;
         $rating->song_id = $song->id;
 
-        if ($song->ratings()->save($rating))
+        if ($song->ratings()->save($rating)) {
             return response()->json([
                 'success' => true,
                 'task' => $rating
             ]);
-        else
+        } else {
             return response()->json([
                 'success' => false,
                 'message' => 'Sorry, this song could not be rated.'
             ], 500);
+        }
     }
 }

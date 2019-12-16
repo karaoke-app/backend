@@ -101,7 +101,6 @@ class SongController extends Controller
                 'message' => 'Sorry, song could not be added.',
             ], 500);
         }
-
     }
 
     /**
