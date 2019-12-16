@@ -15,12 +15,6 @@ use Tymon\JWTAuth\Facades\JWTAuth;
 
 class AuthController extends Controller
 {
-
-    /**
-     * @var bool
-     */
-    public $loginAfterSignUp = true;
-
     /**
      * Redirect the user to the Google authentication page.
      *
@@ -75,7 +69,7 @@ class AuthController extends Controller
 
     /**
      * Registration
-     * @param Request $request
+     * @param AuthRequest $request
      * @return \Illuminate\Http\JsonResponse
      * @throws \Illuminate\Validation\ValidationException
      */
@@ -87,10 +81,6 @@ class AuthController extends Controller
         $user->email = $request->email;
         $user->password = bcrypt($request->password);
         $user->save();
-
-        if ($this->loginAfterSignUp) {
-            return $this->login($request);
-        }
 
         $token = JWTAuth::fromUser($user);
 

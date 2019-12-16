@@ -2,26 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreSong;
 use App\Song;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
-use Tymon\JWTAuth\Facades\JWTAuth;
 
 class SongController extends Controller
 {
-    /**
-     * @var
-     */
-    protected $user;
-
-    /**
-     * SongController constructor.
-     */
-    public function __construct()
-    {
-        $this->user = JWTAuth::parseToken()->authenticate();
-    }
-
     /**
      * Display a listing of songs.
      *
@@ -29,7 +16,7 @@ class SongController extends Controller
      */
     public function index()
     {
-        $songs = Song::get(['artist', 'title', 'cues'])->toArray();
+        $songs = Song::get(['id', 'slug', 'artist', 'title'])->toArray();
 
         return $songs;
     }
@@ -53,12 +40,12 @@ class SongController extends Controller
      */
     public function show($id)
     {
-        $song = Song::find($id);
+        $song = Song::with('user:id,name,avatar')->find($id);
 
         if (!$song) {
             return response()->json([
                 'success' => false,
-                'message' => 'Sorry, song with id ' . $id . ' cannot be found.'
+                'message' => 'Sorry, song with id ' . $id . ' cannot be found.',
             ], 400);
         }
 
@@ -78,12 +65,10 @@ class SongController extends Controller
         if (!$song) {
             return response()->json([
                 'success' => false,
-                'message' => 'Sorry, this user did not upload any songs or user does not exist.'
+                'message' => 'Sorry, this user did not upload any songs or user does not exist.',
             ], 400);
-        }
-        else
-        {
-            return $song = Song::where('user_id', $user_id)->get(['artist', 'title', 'cues', 'is_accepted'])->toArray();
+        } else {
+            return $song = Song::where('user_id', $user_id)->get(['id', 'slug', 'artist', 'title', 'cues'])->toArray();
         }
     }
 
@@ -94,36 +79,29 @@ class SongController extends Controller
      * @return \Illuminate\Http\JsonResponse
      * @throws \Illuminate\Validation\ValidationException
      */
-    public function store(Request $request)
+    public function store(StoreSong $request)
     {
-        $this->validate($request, [
-            'artist' => 'required',
-            'title' => 'required',
-            'cues' => 'required',
-            'video_id' => 'required',
-            'provider_id' => 'required',
-        ]);
-
         $song = new Song();
         $song->artist = $request->artist;
         $song->title = $request->title;
         $song->cues = $request->cues;
-        $song->is_accepted = 0;
         $song->video_id = $request->video_id;
         $song->provider_id = $request->provider_id;
         $merge = $request->artist . ' ' . $request->title;
         $song->slug = Str::slug($merge, '-');
 
-        if ($this->user->songs()->save($song))
+        if (auth()->user()->songs()->save($song)) {
             return response()->json([
                 'success' => true,
-                'song' => $song
+                'song' => $song,
             ]);
-        else
+        } else {
             return response()->json([
                 'success' => false,
-                'message' => 'Sorry, song could not be added.'
+                'message' => 'Sorry, song could not be added.',
             ], 500);
+        }
+
     }
 
     /**
@@ -138,7 +116,7 @@ class SongController extends Controller
         if (!$song) {
             return response()->json([
                 'success' => false,
-                'message' => 'Sorry, song cannot be found.'
+                'message' => 'Sorry, song cannot be found.',
             ], 400);
         }
 
@@ -147,12 +125,12 @@ class SongController extends Controller
         if ($updated) {
             return response()->json([
                 'success' => true,
-                'message' => 'Song has been updated'
+                'message' => 'Song has been updated',
             ]);
         } else {
             return response()->json([
                 'success' => false,
-                'message' => 'Sorry, song could not be updated.'
+                'message' => 'Sorry, song could not be updated.',
             ], 500);
         }
     }
@@ -170,19 +148,19 @@ class SongController extends Controller
         if (!$song) {
             return response()->json([
                 'success' => false,
-                'message' => 'Sorry, song with id ' . $id . ' cannot be found.'
+                'message' => 'Sorry, song with id ' . $id . ' cannot be found.',
             ], 400);
         }
 
         if ($song->delete()) {
             return response()->json([
                 'success' => true,
-                'message' => 'Song was successfully removed'
+                'message' => 'Song was successfully removed',
             ]);
         } else {
             return response()->json([
                 'success' => false,
-                'message' => 'Song could not be deleted.'
+                'message' => 'Song could not be deleted.',
             ], 500);
         }
     }

@@ -22,7 +22,7 @@ class CreateSongsTable extends Migration
             $table->string('provider_id');
             $table->string('video_id')->unique();
             $table->string('slug');
-            $table->boolean('is_accepted');
+            $table->boolean('is_accepted')->default('0');
             $table->foreign('user_id')
                 ->references('id')
                 ->on('users');
