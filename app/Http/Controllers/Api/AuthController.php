@@ -74,6 +74,7 @@ class AuthController extends Controller
      * @throws \Illuminate\Validation\ValidationException
      */
 
+
     public function register(AuthRequest $request)
     {
         $user = new User();
