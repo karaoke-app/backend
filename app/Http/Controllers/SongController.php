@@ -6,7 +6,6 @@ use App\Http\Requests\StoreSong;
 use App\Song;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
-use Tymon\JWTAuth\Facades\JWTAuth;
 
 class SongController extends Controller
 {
@@ -41,12 +40,12 @@ class SongController extends Controller
      */
     public function show($id)
     {
-        $song = Song::with('user: id,name,avatar')->find($id);
+        $song = Song::with('user:id,name,avatar')->find($id);
 
         if (!$song) {
             return response()->json([
                 'success' => false,
-                'message' => 'Sorry, song with id ' . $id . ' cannot be found.'
+                'message' => 'Sorry, song with id ' . $id . ' cannot be found.',
             ], 400);
         }
 
@@ -66,12 +65,10 @@ class SongController extends Controller
         if (!$song) {
             return response()->json([
                 'success' => false,
-                'message' => 'Sorry, this user did not upload any songs or user does not exist.'
+                'message' => 'Sorry, this user did not upload any songs or user does not exist.',
             ], 400);
-        }
-        else
-        {
-            return $song = Song::where('user_id', $user_id)->get(['id', 'slug', 'artist', 'title'])->toArray();
+        } else {
+            return $song = Song::where('user_id', $user_id)->get(['id', 'slug', 'artist', 'title', 'cues'])->toArray();
         }
     }
 
@@ -93,16 +90,18 @@ class SongController extends Controller
         $merge = $request->artist . ' ' . $request->title;
         $song->slug = Str::slug($merge, '-');
 
-        if (auth()->user()->songs()->save($song))
+        if (auth()->user()->songs()->save($song)) {
             return response()->json([
                 'success' => true,
-                'song' => $song
+                'song' => $song,
             ]);
-        else
+        } else {
             return response()->json([
                 'success' => false,
-                'message' => 'Sorry, song could not be added.'
+                'message' => 'Sorry, song could not be added.',
             ], 500);
+        }
+
     }
 
     /**
@@ -117,7 +116,7 @@ class SongController extends Controller
         if (!$song) {
             return response()->json([
                 'success' => false,
-                'message' => 'Sorry, song cannot be found.'
+                'message' => 'Sorry, song cannot be found.',
             ], 400);
         }
 
@@ -126,12 +125,12 @@ class SongController extends Controller
         if ($updated) {
             return response()->json([
                 'success' => true,
-                'message' => 'Song has been updated'
+                'message' => 'Song has been updated',
             ]);
         } else {
             return response()->json([
                 'success' => false,
-                'message' => 'Sorry, song could not be updated.'
+                'message' => 'Sorry, song could not be updated.',
             ], 500);
         }
     }
@@ -149,19 +148,19 @@ class SongController extends Controller
         if (!$song) {
             return response()->json([
                 'success' => false,
-                'message' => 'Sorry, song with id ' . $id . ' cannot be found.'
+                'message' => 'Sorry, song with id ' . $id . ' cannot be found.',
             ], 400);
         }
 
         if ($song->delete()) {
             return response()->json([
                 'success' => true,
-                'message' => 'Song was successfully removed'
+                'message' => 'Song was successfully removed',
             ]);
         } else {
             return response()->json([
                 'success' => false,
-                'message' => 'Song could not be deleted.'
+                'message' => 'Song could not be deleted.',
             ], 500);
         }
     }
