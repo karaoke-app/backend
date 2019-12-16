@@ -42,7 +42,7 @@ class SongController extends Controller
     public function show($id)
     {
         $song = Song::with('user: id,name,avatar')->find($id);
-dd($song);
+
         if (!$song) {
             return response()->json([
                 'success' => false,
