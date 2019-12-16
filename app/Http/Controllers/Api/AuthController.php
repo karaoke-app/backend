@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Requests\AuthRequest;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\User;
@@ -14,12 +15,6 @@ use Tymon\JWTAuth\Facades\JWTAuth;
 
 class AuthController extends Controller
 {
-
-    /**
-     * @var bool
-     */
-    public $loginAfterSignUp = true;
-
     /**
      * Redirect the user to the Google authentication page.
      *
@@ -35,24 +30,20 @@ class AuthController extends Controller
      *
      * @param \App\Http\Controllers\Api\SocialAccountsService $accountService
      * @param $provider
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
     public function handleProviderCallback(SocialAccountsService $accountService, $provider)
     {
-        try {
-            $user = Socialite::with($provider)->user();
-        } catch (\Exception $e) {
-            return redirect('/login');
-        }
+        $user = Socialite::with($provider)->user();
 
         $authUser = $accountService->findOrCreate(
             $user,
             $provider
         );
 
-        auth()->login($authUser, true);
+        $token = JWTAuth::fromUser($authUser);
 
-        return redirect()->to('/home');
+        return $this->respondWithToken($token);
     }
 
     /**
@@ -78,21 +69,19 @@ class AuthController extends Controller
 
     /**
      * Registration
-     * @param Request $request
+     * @param AuthRequest $request
      * @return \Illuminate\Http\JsonResponse
+     * @throws \Illuminate\Validation\ValidationException
      */
 
-    public function register(Request $request)
+
+    public function register(AuthRequest $request)
     {
         $user = new User();
         $user->name = $request->name;
         $user->email = $request->email;
         $user->password = bcrypt($request->password);
         $user->save();
-
-        if ($this->loginAfterSignUp) {
-            return $this->login($request);
-        }
 
         $token = JWTAuth::fromUser($user);
 
@@ -144,6 +133,6 @@ class AuthController extends Controller
             'access_token' => $token,
             'token_type' => 'bearer',
             'expires_in' => auth()->factory()->getTTL() * 60
-        ]);
+        ], 201);
     }
 }
