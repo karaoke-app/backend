@@ -87,6 +87,7 @@ class SongController extends Controller
         $song->cues = $request->cues;
         $song->video_id = $request->video_id;
         $song->provider_id = $request->provider_id;
+        $song->is_accepted = 1;
         $merge = $request->artist . ' ' . $request->title;
         $song->slug = Str::slug($merge, '-');
 
