@@ -34,12 +34,12 @@ class RegisterTest extends TestCase
     public function testCreateUser()
     {
         $response = $this->json('POST', '/api/register', self::setUpValidUser());
-        $response->assertStatus(201);
-        $response->assertJsonStructure([
-            'access_token',
-            'token_type',
-            'expires_in'
-        ]);
+        $response->assertStatus(201)
+            ->assertJsonStructure([
+                'access_token',
+                'token_type',
+                'expires_in'
+            ]);
     }
 
     public function testCreateUserWithTheSameEmail()
@@ -48,14 +48,32 @@ class RegisterTest extends TestCase
         $this->json('POST', '/api/register', $user);
 
         $response = $this->json('POST', '/api/register', $user);
-        $response->assertStatus(400);
-        $response->assertJson(['message' => 'This email is already used in the system']);
+        $response->assertStatus(422)
+            ->assertJson([
+                'message' => 'The given data was invalid.',
+                'errors' => [
+                    'email' => [
+                        'The email has already been taken.'
+                    ]
+                ]
+            ]);
     }
 
     public function testCreateUserWithBadCredentials()
     {
         $response = $this->json('POST', '/api/register', self::setUpInvalidUser());
-        $response->assertStatus(400);
-        $response->assertJson(['error' => 'Bad credentials']);
+        $response->assertStatus(422)
+            ->assertJson([
+                'message' => 'The given data was invalid.',
+                'errors' => [
+                    'email' => [
+                        'The email must be a valid email address.'
+                    ],
+                    'password' => [
+                        'The password must be at least 8 characters.',
+                        'The password confirmation does not match.'
+                    ]
+                ]
+            ]);
     }
 }

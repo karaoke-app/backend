@@ -23,7 +23,12 @@ class LoginTest extends TestCase
     public function testLogin()
     {
         $response = $this->json('POST', '/api/login', self::setUpValidUser());
-        $response->assertStatus(200);
+        $response->assertStatus(200)
+            ->assertJsonStructure([
+                'access_token',
+                'token_type',
+                'expires_in'
+            ]);
     }
 
     public function testLoginWithBadCredentials()
@@ -32,7 +37,7 @@ class LoginTest extends TestCase
             'email' => $this->faker->email,
             'password' => '000'
         ]);
-        $response->assertStatus(401);
-        $response->assertJson(['error' => 'Invalid email or password']);
+        $response->assertStatus(401)
+            ->assertJson(['error' => 'Invalid email or password']);
     }
 }
