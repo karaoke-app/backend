@@ -2,6 +2,7 @@
 
 namespace Tests\Unit;
 
+use App\User;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
@@ -12,10 +13,9 @@ class LoginTest extends TestCase
 
     public function setUpValidUser()
     {
-        $users = DB::table('users')->get();
-
+        $user = factory(User::class)->create();
         return [
-            'email' => $users->get('email'),
+            'email' => $user->email,
             'password' => 'Testowe123!',
         ];
     }
