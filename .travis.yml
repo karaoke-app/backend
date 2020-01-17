@@ -12,6 +12,11 @@ before_script:
   - cp .env.travis .env
   - pear install pear/PHP_CodeSniffer
   - phpenv rehash
+  - mysql -e 'CREATE DATABASE IF NOT EXISTS test;'
+  - php artisan migrate 
+  
+services:
+  - mysql
 
 script:
   - vendor/bin/phpunit --coverage-text
