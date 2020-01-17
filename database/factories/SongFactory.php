@@ -11,6 +11,7 @@ $factory->define(Song::class, function (Faker $faker) {
     $artist = $faker->name;
     $title = $faker->title;
     return [
+        'id' => $faker->unique()->numberBetween(1),
         'created_at' => now(),
         'updated_at' => now(),
         'user_id' => function () {
