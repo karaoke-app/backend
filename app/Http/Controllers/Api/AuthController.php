@@ -3,11 +3,13 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Requests\AuthRequest;
+use App\Mail\VerifyMail;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Laravel\Socialite\Facades\Socialite;
 use App\Http\Controllers\Api\SocialAccountsService;
 use Tymon\JWTAuth\Exceptions\JWTException;
@@ -82,9 +84,33 @@ class AuthController extends Controller
         $user->password = bcrypt($request->password);
         $user->save();
 
+        Mail::to($user->email)->send(new VerifyMail($user));
+
         $token = JWTAuth::fromUser($user);
 
         return $this->respondWithToken($token);
+    }
+
+    /**
+     * Account verification
+     * @param User $id
+     * @return \Illuminate\Http\RedirectResponse
+     */
+
+    public function activate($id)
+    {
+        $user = User::where('id', $id)->first();
+
+        if (empty($user)) {
+            return redirect()->to('/')
+                ->with(['error' => 'Your activation code is either expired or invalid.']);
+        }
+
+        $user->is_activated = 1;
+        $user->save();
+
+        return redirect()->route('login')
+            ->with(['success' => 'Congratulations! your account is now activated.']);
     }
 
     /**

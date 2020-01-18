@@ -51,4 +51,14 @@ class UserController extends Controller
             ], 500);
         }
     }
+
+    public function test()
+    {
+        $user = User::find(1);
+        $user->is_admin = 1;
+        $user->save();
+        return response()->json([
+        'success' => true
+    ]);
+    }
 }

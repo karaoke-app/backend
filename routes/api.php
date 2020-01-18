@@ -21,6 +21,7 @@ use Illuminate\Http\Request;
     Route::get('/provider/{provider}/callback', 'Api\AuthController@handleProviderCallback');
 
     Route::post('login', 'Api\AuthController@login');
+    Route::get('activate{id}', 'Api\AuthController@activate')->name('activate');
     Route::post('register', 'Api\AuthController@register');
 
     Route::get('songs', 'SongController@index')->name('songs.index');
