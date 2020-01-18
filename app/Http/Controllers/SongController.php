@@ -91,6 +91,7 @@ class SongController extends Controller
         $song->slug = Str::slug($merge, '-');
 
         if (auth()->user()->songs()->save($song)) {
+            $song->categories()->attach($request->categories);
             return response()->json([
                 'success' => true,
                 'song' => $song

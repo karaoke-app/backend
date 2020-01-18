@@ -61,8 +61,6 @@ Route::group(['middleware' => 'auth.jwt'], function () {
     Route::post('playlists/{playlist_id}/{id}', 'PlaylistController@add');
     Route::delete('playlists/{id}', 'PlaylistController@destroy');
     Route::get('playlists/{playlist}/{id}', 'PlaylistController@remove');
-
-    Route::post('categories/{category_id}/{id}', 'CategoryController@add');
 });
 
 Route::group(['middleware' => ['auth.jwt', 'admin']], function () {
