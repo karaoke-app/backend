@@ -103,7 +103,7 @@ class AuthController extends Controller
 
         if (empty($user)) {
             return redirect()->to('/')
-                ->with(['error' => 'Your activation code is either expired or invalid.']);
+                ->with(['error' => 'Your activation link is either expired or invalid.']);
         }
 
         $user->is_activated = 1;

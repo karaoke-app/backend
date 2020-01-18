@@ -51,6 +51,10 @@ Route::group(['middleware' => 'auth.jwt'], function () {
 
     Route::get('lyrics/import', 'LyricsController@import');
 
+    Route::put('users/password', 'UserController@changePassword');
+    Route::put('users/username', 'UserController@changeUsername');
+    Route::put('users/deactivate', 'UserController@deactivation');
+
     Route::post('songs/{id}/ratings', 'RatingController@store');
 
     Route::post('playlists', 'PlaylistController@create');

@@ -29,7 +29,7 @@ class CategoryController extends Controller
         return response()->json([
             'success' => true,
             'category' => $category
-        ]);
+        ], 201);
     }
 
     /**
@@ -140,7 +140,7 @@ class CategoryController extends Controller
     }
 
     /**
-     * Display songs from specified playlist
+     * Display songs from specified category
      * @param $id
      * @return \Illuminate\Http\JsonResponse
      */

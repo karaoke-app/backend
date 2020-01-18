@@ -94,7 +94,7 @@ class SongController extends Controller
             return response()->json([
                 'success' => true,
                 'song' => $song
-            ]); //dodac status 201
+            ], 201);
         } else {
             return response()->json([
                 'success' => false,
