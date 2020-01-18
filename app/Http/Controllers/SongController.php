@@ -9,16 +9,33 @@ use Illuminate\Support\Str;
 
 class SongController extends Controller
 {
-     /**
+    /**
      * Display a listing of songs.
      *
-     * @return Response
+     * @param Request $request
+     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
      */
-    public function index()
+    public function index(Request $request)
     {
-        $songs = Song::get(['id', 'slug', 'artist', 'title'])->toArray();
+        $songs = Song::query();
 
-        return $songs;
+        if ($request->has('sort') && $request->get('sort') === 'date_desc') {
+        $songs->orderBy('created_at', 'desc');
+        }
+
+        if ($request->has('query')) {
+            $query = $request->get('query');
+            $songs->where('artist', 'like', '%' . $query . '%')
+                ->orWhere('title', 'like', '%' . $query . '%');
+        }
+
+        if ($request->has('category')) {
+            $category = $request->get('category');
+            $songs->whereHas('categories', function ($q) use ($category) {
+                $q->where('category_id', $category);
+            });
+        }
+        return $songs->paginate(6, ['id', 'slug', 'artist', 'title'])->appends($request->input());
     }
 
     /**

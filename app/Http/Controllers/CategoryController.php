@@ -100,7 +100,7 @@ class CategoryController extends Controller
      */
     public function index()
     {
-        $category = Category::get(['name'])->toArray();
+        $category = Category::get(['id', 'name'])->toArray();
         return $category;
     }
 

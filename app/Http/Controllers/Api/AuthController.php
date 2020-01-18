@@ -77,7 +77,7 @@ class AuthController extends Controller
     /**
      * Registration
      * @param AuthRequest $request
-     * @return \Illuminate\Http\RedirectResponse
+     * @return \Illuminate\Http\JsonResponse
      * @throws \Illuminate\Validation\ValidationException
      */
 
@@ -91,8 +91,7 @@ class AuthController extends Controller
 
         Mail::to($user->email)->send(new VerifyMail($user));
 
-        return redirect()->route('login')
-            ->with(['success' => 'Check your email to activate your account.']);;
+        return response()->json(['success' => true]);
     }
 
     /**
