@@ -23,7 +23,7 @@ use Illuminate\Http\Request;
     Route::post('login', 'Api\AuthController@login');
     Route::post('register', 'Api\AuthController@register');
 
-    Route::get('songs', 'SongController@index');
+    Route::get('songs', 'SongController@index')->name('songs.index');
     Route::get('songs/{id}', 'SongController@show');
     Route::get('songs/user/{user_id}', 'SongController@userSongs');
 
@@ -49,6 +49,8 @@ Route::group(['middleware' => 'auth.jwt'], function () {
     Route::put('songs/{song}', 'SongController@update');
     Route::delete('songs/{id}', 'SongController@destroy');
 
+    Route::get('lyrics/import', 'LyricsController@import');
+
     Route::post('songs/{id}/ratings', 'RatingController@store');
 
     Route::delete('users/{id}', 'UserController@destroy');
@@ -63,5 +65,3 @@ Route::group(['middleware' => 'auth.jwt'], function () {
     Route::delete('categories/{id}', 'CategoryController@destroy');
     Route::get('categories/{category}/{id}', 'CategoryController@remove');
 });
-
-

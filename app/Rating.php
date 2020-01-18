@@ -19,5 +19,4 @@ class Rating extends Model
     {
         return $this->belongsTo(Song::class);
     }
-
 }

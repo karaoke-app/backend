@@ -9,7 +9,7 @@ use Illuminate\Support\Str;
 
 class SongController extends Controller
 {
-    /**
+     /**
      * Display a listing of songs.
      *
      * @return Response
@@ -84,8 +84,8 @@ class SongController extends Controller
         $song = new Song();
         $song->artist = $request->artist;
         $song->title = $request->title;
-        $song->cues = $request->cues;
         $song->video_id = $request->video_id;
+        $song->cues = $request->cues;
         $song->provider_id = $request->provider_id;
         $merge = $request->artist . ' ' . $request->title;
         $song->slug = Str::slug($merge, '-');
@@ -93,15 +93,14 @@ class SongController extends Controller
         if (auth()->user()->songs()->save($song)) {
             return response()->json([
                 'success' => true,
-                'song' => $song,
-            ]);
+                'song' => $song
+            ]); //dodac status 201
         } else {
             return response()->json([
                 'success' => false,
                 'message' => 'Sorry, song could not be added.',
             ], 500);
         }
-
     }
 
     /**
