@@ -37,6 +37,7 @@ class User extends Authenticatable implements JWTSubject
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'is_admin' => 'boolean',
     ];
 
     public function linkedSocialAccounts()
@@ -78,5 +79,10 @@ class User extends Authenticatable implements JWTSubject
     public function playlists()
     {
         return $this->hasMany(Playlist::class);
+    }
+
+    public function isAdmin()
+    {
+        return $this->is_admin;
     }
 }

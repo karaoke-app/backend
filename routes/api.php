@@ -44,7 +44,6 @@ Route::group(['middleware' => 'auth.jwt'], function () {
     Route::post('refresh', 'Api\AuthController@refresh');
     Route::post('me', 'Api\AuthController@me');
 
-    Route::get('songs/status', 'SongController@verify');
     Route::post('songs', 'SongController@store');
     Route::put('songs/{song}', 'SongController@update');
     Route::delete('songs/{id}', 'SongController@destroy');
@@ -53,15 +52,20 @@ Route::group(['middleware' => 'auth.jwt'], function () {
 
     Route::post('songs/{id}/ratings', 'RatingController@store');
 
-    Route::delete('users/{id}', 'UserController@destroy');
-
     Route::post('playlists', 'PlaylistController@create');
     Route::post('playlists/{playlist_id}/{id}', 'PlaylistController@add');
     Route::delete('playlists/{id}', 'PlaylistController@destroy');
     Route::get('playlists/{playlist}/{id}', 'PlaylistController@remove');
 
-    Route::post('categories', 'CategoryController@create');
     Route::post('categories/{category_id}/{id}', 'CategoryController@add');
+});
+
+Route::group(['middleware' => ['auth.jwt', 'admin']], function () {
+    Route::get('songs/status', 'SongController@verify');
+
+    Route::delete('users/{id}', 'UserController@destroy');
+
+    Route::post('categories', 'CategoryController@create');
     Route::delete('categories/{id}', 'CategoryController@destroy');
     Route::get('categories/{category}/{id}', 'CategoryController@remove');
 });
