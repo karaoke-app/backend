@@ -66,13 +66,18 @@ class AuthController extends Controller
             return response()->json(['error' => 'Could not create token'], 500);
         }
 
+        if(User::where('email', $request->email)->pluck('is_activated')->first() == 0)
+        {
+            return response()->json(['error' => 'In order to login, you need to activate your account first.'], 401);
+        }
+
         return $this->respondWithToken($token);
     }
 
     /**
      * Registration
      * @param AuthRequest $request
-     * @return \Illuminate\Http\JsonResponse
+     * @return \Illuminate\Http\RedirectResponse
      * @throws \Illuminate\Validation\ValidationException
      */
 
@@ -86,9 +91,8 @@ class AuthController extends Controller
 
         Mail::to($user->email)->send(new VerifyMail($user));
 
-        $token = JWTAuth::fromUser($user);
-
-        return $this->respondWithToken($token);
+        return redirect()->route('login')
+            ->with(['success' => 'Check your email to activate your account.']);;
     }
 
     /**
@@ -110,7 +114,7 @@ class AuthController extends Controller
         $user->save();
 
         return redirect()->route('login')
-            ->with(['success' => 'Congratulations! your account is now activated.']);
+            ->with(['success' => 'Congratulations! Your account is now activated.']);
     }
 
     /**
