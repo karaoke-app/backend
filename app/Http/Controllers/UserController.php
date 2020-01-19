@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ChangePassword;
+use App\Http\Requests\ChangeUsername;
+use App\Http\Requests\Deactivation;
 use Illuminate\Http\Request;
 use App\User;
 use Illuminate\Support\Facades\Auth;
@@ -54,14 +57,8 @@ class UserController extends Controller
         }
     }
 
-    public function changePassword(Request $request)
+    public function changePassword(ChangePassword $request)
     {
-        $this->validate($request, [
-            'current_password' => 'required',
-            'new_password' => ['required', 'string', 'min:8', 'confirmed'],
-            'new_password_confirmation' => ['required', 'same:new_password'],
-        ]);
-
         if (!(Hash::check($request->get('current_password'), Auth::user()->password))) {
             return response()->json(['errors' => ['current'=> ['Current password does not match']]], 422);
         }
@@ -79,14 +76,8 @@ class UserController extends Controller
         ]);
     }
 
-    public function changeUsername(Request $request)
+    public function changeUsername(ChangeUsername $request)
     {
-        $this->validate($request, [
-            'current_username' => ['required'],
-            'new_username' => ['required', 'string', 'max:255'],
-            'new_username_confirmation' => ['required', 'same:new_username'],
-        ]);
-
         if ($request->get('current_username') != Auth::user()->name){
             return response()->json(['errors' => ['current'=> ['Current username does not match']]], 422);
         }
@@ -104,13 +95,8 @@ class UserController extends Controller
         ]);
     }
 
-    public function deactivation(Request $request)
+    public function deactivation(Deactivation $request)
     {
-        $this->validate($request, [
-            'password' => 'required',
-            'password_confirmation' => ['required', 'same:password'],
-        ]);
-
         if (!(Hash::check($request->get('password'), Auth::user()->password))) {
             return response()->json(['errors' => ['current'=> ['Current password does not match']]], 422);
         }

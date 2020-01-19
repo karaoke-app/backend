@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Report;
-use App\Song;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -14,11 +13,10 @@ class ReportController extends Controller
      * Create a new report.
      *
      * @param Request $request
-     * @param Song $id
      * @return \Illuminate\Http\JsonResponse
      * @throws \Illuminate\Validation\ValidationException
      */
-    public function store(Request $request, $id)
+    public function create(Request $request)
     {
         $this->validate($request, [
             'description' => 'required',
@@ -26,7 +24,7 @@ class ReportController extends Controller
 
         $report = new Report();
         $report->user_id = Auth::id();
-        $report->song_id = $id;
+        $report->song_id = $request->route('id');
         $report->description = $request->description;
 
         $report->save();
