@@ -66,6 +66,9 @@ class SongController extends Controller
             ], 400);
         }
 
+        $song->plays += 1;
+        $song->save();
+
         return response()->json([
             'success' => true,
             'song' => $song,

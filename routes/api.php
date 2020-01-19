@@ -21,7 +21,7 @@ use Illuminate\Http\Request;
     Route::get('/provider/{provider}/callback', 'Api\AuthController@handleProviderCallback');
 
     Route::post('login', 'Api\AuthController@login');
-    Route::get('activate{id}', 'Api\AuthController@activate')->name('activate');
+    Route::get('activate/{id}', 'Api\AuthController@activate')->name('activate');
     Route::post('register', 'Api\AuthController@register');
 
     Route::get('songs', 'SongController@index')->name('songs.index');
@@ -33,7 +33,7 @@ use Illuminate\Http\Request;
     Route::get('users', 'UserController@index');
     Route::get('users/{id}', 'UserController@show');
 
-    Route::get('playlists', 'PlaylistController@index');
+    Route::get('playlists/{name}', 'PlaylistController@userPlaylist');
     Route::get('playlists/{id}', 'PlaylistController@show');
 
     Route::get('categories', 'CategoryController@index');
@@ -49,7 +49,7 @@ Route::group(['middleware' => 'auth.jwt'], function () {
     Route::put('songs/{song}', 'SongController@update');
     Route::delete('songs/{id}', 'SongController@destroy');
 
-    Route::post('reports/{id}', 'ReportController@store');
+    Route::post('songs/{id}/report', 'ReportController@create');
 
     Route::get('lyrics/import', 'LyricsController@import');
 
@@ -59,6 +59,7 @@ Route::group(['middleware' => 'auth.jwt'], function () {
 
     Route::post('songs/{id}/ratings', 'RatingController@store');
 
+    Route::get('playlists', 'PlaylistController@index');
     Route::post('playlists', 'PlaylistController@create');
     Route::post('playlists/{playlist_id}/{id}', 'PlaylistController@add');
     Route::delete('playlists/{id}', 'PlaylistController@destroy');
