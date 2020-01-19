@@ -22,6 +22,7 @@ use Illuminate\Http\Request;
 
     Route::post('login', 'Api\AuthController@login');
     Route::get('activate/{id}', 'Api\AuthController@activate')->name('activate');
+    Route::post('reactivate', 'Api\AuthController@reactivate');
     Route::post('register', 'Api\AuthController@register');
 
     Route::get('songs', 'SongController@index')->name('songs.index');
@@ -56,6 +57,7 @@ Route::group(['middleware' => 'auth.jwt'], function () {
     Route::put('users/password', 'UserController@changePassword');
     Route::put('users/username', 'UserController@changeUsername');
     Route::put('users/deactivate', 'UserController@deactivation');
+    Route::delete('users/{name}', 'UserController@delete');
 
     Route::post('songs/{id}/ratings', 'RatingController@store');
 

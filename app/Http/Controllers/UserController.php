@@ -12,7 +12,10 @@ use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
-
+    /**
+     * Display a listing of users.
+     *
+     */
     public function index()
     {
         $users = User::get(['id', 'name', 'email'])->toArray();
@@ -20,6 +23,11 @@ class UserController extends Controller
         return $users;
     }
 
+    /**
+     * Display specified user.
+     * @param $id
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function show($id)
     {
         $user = User::find($id);
@@ -34,6 +42,11 @@ class UserController extends Controller
         return $user;
     }
 
+    /**
+     * Delete specified user (admin).
+     * @param $id
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function destroy($id)
     {
         $user = User::find($id);
@@ -57,6 +70,39 @@ class UserController extends Controller
         }
     }
 
+    /**
+     * Delete profile (user).
+     * @param $name
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function delete($name)
+    {
+        $user = Auth::user();
+
+        if (Auth::user()->name != $name) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Sorry, an error occurred.'
+            ], 500);
+        }
+
+        if ($user->delete()) {
+            return response()->json([
+                'success' => true
+            ]);
+        } else {
+            return response()->json([
+                'success' => false,
+                'message' => 'User could not be deleted.'
+            ], 500);
+        }
+    }
+
+    /**
+     * Changing password.
+     * @param ChangePassword $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function changePassword(ChangePassword $request)
     {
         if (!(Hash::check($request->get('current_password'), Auth::user()->password))) {
@@ -71,11 +117,16 @@ class UserController extends Controller
         $user->password = Hash::make($request->get('new_password'));
         $user->save();
 
-        return response([
+        return response()->json([
             'message' => 'Your password has been updated successfully.'
         ]);
     }
 
+    /**
+     * Changing username.
+     * @param ChangeUsername $request
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\JsonResponse|\Illuminate\Http\Response
+     */
     public function changeUsername(ChangeUsername $request)
     {
         if ($request->get('current_username') != Auth::user()->name){
@@ -95,6 +146,11 @@ class UserController extends Controller
         ]);
     }
 
+    /**
+     * Account deactivation.
+     * @param Deactivation $request
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\JsonResponse|\Illuminate\Http\Response
+     */
     public function deactivation(Deactivation $request)
     {
         if (!(Hash::check($request->get('password'), Auth::user()->password))) {

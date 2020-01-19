@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Requests\AuthRequest;
+use App\Http\Requests\Reactivation;
 use App\Mail\VerifyMail;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -68,7 +69,7 @@ class AuthController extends Controller
 
         if(User::where('email', $request->email)->pluck('is_activated')->first() == 0)
         {
-            return response()->json(['error' => 'In order to login, you need to activate your account first.'], 401);
+            return response()->json(['error' => 'Your account is deactivated'], 401);
         }
 
         return $this->respondWithToken($token);
@@ -114,6 +115,46 @@ class AuthController extends Controller
 
         return redirect()->route('login')
             ->with(['success' => 'Congratulations! Your account is now activated.']);
+    }
+
+    /**
+     * Account reactivation
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+
+    public function reactivate(Reactivation $request)
+    {
+        $user = User::where('email', $request->email)->first();
+
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Sorry, user with given email cannot be found.'
+            ], 400);
+        }
+
+        if (!Hash::check($request->password, $user->password)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Sorry, password does not match with the registered one.'
+            ], 400);
+        }
+
+        if($user->is_activated == 1) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Your account is already activated. Try to login.'
+            ], 400);
+        }
+
+        $user->is_activated = 1;
+        $user->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Your account is reactivated. You can login now.'
+        ]);
     }
 
     /**
