@@ -49,6 +49,8 @@ Route::group(['middleware' => 'auth.jwt'], function () {
     Route::put('songs/{song}', 'SongController@update');
     Route::delete('songs/{id}', 'SongController@destroy');
 
+    Route::post('reports/{id}', 'ReportController@store');
+
     Route::get('lyrics/import', 'LyricsController@import');
 
     Route::put('users/password', 'UserController@changePassword');
@@ -71,4 +73,7 @@ Route::group(['middleware' => ['auth.jwt', 'admin']], function () {
     Route::post('categories', 'CategoryController@create');
     Route::delete('categories/{id}', 'CategoryController@destroy');
     Route::get('categories/{category}/{id}', 'CategoryController@remove');
+
+    Route::get('reports', 'ReportController@index');
+    Route::get('reports/{id}', 'ReportController@show');
 });

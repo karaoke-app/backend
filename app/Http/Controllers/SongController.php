@@ -66,7 +66,10 @@ class SongController extends Controller
             ], 400);
         }
 
-        return $song;
+        return response()->json([
+            'success' => true,
+            'song' => $song,
+        ]);
     }
 
     /**
