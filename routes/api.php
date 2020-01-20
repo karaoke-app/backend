@@ -69,10 +69,7 @@ Route::group(['middleware' => ['auth.jwt', 'admin']], function () {
     Route::post('categories', 'CategoryController@create');
     Route::delete('categories/{id}', 'CategoryController@destroy');
     Route::get('categories/{category}/{id}', 'CategoryController@remove');
-<<<<<<< HEAD
 
     Route::get('reports', 'ReportController@index');
     Route::get('reports/{id}', 'ReportController@show');
-=======
->>>>>>> dev
 });
