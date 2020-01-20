@@ -5,13 +5,13 @@ namespace App\Http\Controllers;
 use App\Http\Requests\AuthRequest;
 use App\Http\Requests\Reactivation;
 use App\Mail\VerifyMail;
-use Illuminate\Http\Request;
+use App\Services\SocialAccountsService;
 use App\User;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Laravel\Socialite\Facades\Socialite;
-use App\Services\SocialAccountsService;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
@@ -26,7 +26,7 @@ class AuthController extends Controller
      */
     public function handleProviderCallback(SocialAccountsService $accountService, $provider)
     {
-        $user = Socialite::with($provider)->stateless()->user();
+        $user = Socialite::driver($provider)->stateless()->user();
 
         $authUser = $accountService->findOrCreate(
             $user,
@@ -56,8 +56,7 @@ class AuthController extends Controller
             return response()->json(['error' => 'Could not create token'], 500);
         }
 
-        if(User::where('email', $request->email)->pluck('is_activated')->first() == 0)
-        {
+        if (User::where('email', $request->email)->pluck('is_activated')->first() == 0) {
             return response()->json(['error' => 'Your account is deactivated'], 401);
         }
 
@@ -124,21 +123,21 @@ class AuthController extends Controller
         if (!$user) {
             return response()->json([
                 'success' => false,
-                'message' => 'Sorry, user with given email cannot be found.'
+                'message' => 'Sorry, user with given email cannot be found.',
             ], 400);
         }
 
         if (!Hash::check($request->password, $user->password)) {
             return response()->json([
                 'success' => false,
-                'message' => 'Sorry, password does not match with the registered one.'
+                'message' => 'Sorry, password does not match with the registered one.',
             ], 400);
         }
 
-        if($user->is_activated == 1) {
+        if ($user->is_activated == 1) {
             return response()->json([
                 'success' => false,
-                'message' => 'Your account is already activated. Try to login.'
+                'message' => 'Your account is already activated. Try to login.',
             ], 400);
         }
 
@@ -147,7 +146,7 @@ class AuthController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Your account is reactivated. You can login now.'
+            'message' => 'Your account is reactivated. You can login now.',
         ]);
     }
 
@@ -195,7 +194,7 @@ class AuthController extends Controller
         return response()->json([
             'access_token' => $token,
             'token_type' => 'bearer',
-            'expires_in' => auth()->factory()->getTTL() * 60
+            'expires_in' => auth()->factory()->getTTL() * 60,
         ], 201);
     }
 }

@@ -1,7 +1,5 @@
 <?php
 
-use Illuminate\Http\Request;
-
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -11,33 +9,29 @@ use Illuminate\Http\Request;
 | routes are loaded by the RouteServiceProvider within a group which
 | is assigned the "api" middleware group. Enjoy building your API!
 |
-*/
+ */
 
-    /*Route::middleware('auth:api')->get('/user', function (Request $request) {
-        return $request->user();
-    });*/
+Route::post('auth/{provider}', 'AuthController@handleProviderCallback');
 
-    Route::post('auth/{provider}', 'AuthController@handleProviderCallback');
+Route::post('login', 'AuthController@login');
+Route::get('activate/{id}/{activation_token}', 'AuthController@activate')->name('activate');
+Route::post('reactivate', 'AuthController@reactivate');
+Route::post('register', 'AuthController@register');
 
-    Route::post('login', 'AuthController@login');
-    Route::get('activate/{id}/{activation_token}', 'AuthController@activate')->name('activate');
-    Route::post('reactivate', 'AuthController@reactivate');
-    Route::post('register', 'AuthController@register');
+Route::get('songs', 'SongController@index')->name('songs.index');
+Route::get('songs/{id}', 'SongController@show');
+Route::get('songs/user/{user_id}', 'SongController@userSongs');
 
-    Route::get('songs', 'SongController@index')->name('songs.index');
-    Route::get('songs/{id}', 'SongController@show');
-    Route::get('songs/user/{user_id}', 'SongController@userSongs');
+Route::get('ratings/{id}', 'RatingController@show');
 
-    Route::get('ratings', 'RatingController@show');
+Route::get('users', 'UserController@index');
+Route::get('users/{id}', 'UserController@show');
 
-    Route::get('users', 'UserController@index');
-    Route::get('users/{id}', 'UserController@show');
+Route::get('playlists/user/{id}', 'PlaylistController@userPlaylist');
+Route::get('playlists/{id}', 'PlaylistController@show');
 
-    Route::get('playlists/user/{id}', 'PlaylistController@userPlaylist');
-    Route::get('playlists/{id}', 'PlaylistController@show');
-
-    Route::get('categories', 'CategoryController@index');
-    Route::get('categories/{id}', 'CategoryController@show');
+Route::get('categories', 'CategoryController@index');
+Route::get('categories/{id}', 'CategoryController@show');
 
 Route::group(['middleware' => 'auth.jwt'], function () {
     Route::get('logout', 'AuthController@logout');
