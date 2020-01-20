@@ -158,17 +158,17 @@ class PlaylistController extends Controller
     /**
      * Display playlists from specified user.
      *
-     * @param User $name
+     * @param User $id
      * @return \Illuminate\Http\JsonResponse
      */
-    public function userPlaylist($name)
+    public function userPlaylist($id)
     {
-        $playlist = Playlist::find($name);
+        $playlist = Playlist::where('user_id', $id)->where('is_private', 0)->get();
 
         if (!$playlist) {
             return response()->json([
                 'success' => false,
-                'message' => 'Sorry, user with name ' . $name . ' did not create any playlists.'
+                'message' => 'Sorry, user did not create any playlists.'
             ], 400);
         }
 

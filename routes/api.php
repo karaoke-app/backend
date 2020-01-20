@@ -34,7 +34,7 @@ use Illuminate\Http\Request;
     Route::get('users', 'UserController@index');
     Route::get('users/{id}', 'UserController@show');
 
-    Route::get('playlists/{name}', 'PlaylistController@userPlaylist');
+    Route::get('playlists/user/{id}', 'PlaylistController@userPlaylist');
     Route::get('playlists/{id}', 'PlaylistController@show');
 
     Route::get('categories', 'CategoryController@index');
