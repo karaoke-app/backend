@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Song;
 use Illuminate\Http\JsonResponse;
 use App\Services\TekstowoLyricsService;
+use Illuminate\Http\Request;
 
 class LyricsController extends Controller
 {
@@ -22,12 +23,14 @@ class LyricsController extends Controller
     /**
      * Import text for a specific song from website.
      *
-     * @param Song $artist
-     * @param Song $title
+     * @param Request $request
      * @return JsonResponse|string|string[]
      */
-    public function import($artist, $title)
+    public function import(Request $request)
     {
-        return $this->lyricsService->import($artist, $title);
+        return $this->lyricsService->import(
+            $request->artist,
+            $request->title
+        );
     }
 }

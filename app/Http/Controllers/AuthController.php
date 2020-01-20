@@ -100,7 +100,7 @@ class AuthController extends Controller
      * Account verification
      * @param User $id
      * @param User $activation_token
-     * @return \Illuminate\Http\RedirectResponse
+     * @return \Illuminate\Http\JsonResponse
      */
 
     public function activate($id, $activation_token)
@@ -108,20 +108,17 @@ class AuthController extends Controller
         $user = User::where('id', $id)->first();
 
         if (!$user) {
-            return redirect()->to('/')
-                ->with(['error' => 'User does not exist']);
+            return response()->json(['error' => 'User does not exist']);
         }
 
         if ($user->activation_token != $activation_token) {
-            return redirect()->to('/')
-                ->with(['error' => 'Invalid token.']);
+            return response()->json(['error' => 'Invalid token.']);
         }
 
         $user->is_activated = 1;
         $user->save();
 
-        return redirect()->route('login')
-            ->with(['success' => 'Congratulations! Your account is now activated.']);
+        return response()->json(['success' => 'Congratulations! Your account is now activated.']);
     }
 
     /**
