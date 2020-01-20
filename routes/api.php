@@ -17,13 +17,13 @@ use Illuminate\Http\Request;
         return $request->user();
     });*/
 
-    Route::get('/provider/{provider}', 'Api\AuthController@redirectToProvider')->name('redirectToProvider');
-    Route::get('/provider/{provider}/callback', 'Api\AuthController@handleProviderCallback');
+    Route::get('/provider/{provider}', 'AuthController@redirectToProvider')->name('redirectToProvider');
+    Route::get('/provider/{provider}/callback', 'AuthController@handleProviderCallback');
 
-    Route::post('login', 'Api\AuthController@login');
-    Route::get('activate/{id}', 'Api\AuthController@activate')->name('activate');
-    Route::post('reactivate', 'Api\AuthController@reactivate');
-    Route::post('register', 'Api\AuthController@register');
+    Route::post('login', 'AuthController@login');
+    Route::get('activate/{id}/{activation_token}', 'AuthController@activate')->name('activate');
+    Route::post('reactivate', 'AuthController@reactivate');
+    Route::post('register', 'AuthController@register');
 
     Route::get('songs', 'SongController@index')->name('songs.index');
     Route::get('songs/{id}', 'SongController@show');
@@ -41,10 +41,10 @@ use Illuminate\Http\Request;
     Route::get('categories/{id}', 'CategoryController@show');
 
 Route::group(['middleware' => 'auth.jwt'], function () {
-    Route::get('logout', 'Api\AuthController@logout');
-    Route::post('logout', 'Api\AuthController@logout');
-    Route::post('refresh', 'Api\AuthController@refresh');
-    Route::post('me', 'Api\AuthController@me');
+    Route::get('logout', 'AuthController@logout');
+    Route::post('logout', 'AuthController@logout');
+    Route::post('refresh', 'AuthController@refresh');
+    Route::post('me', 'AuthController@me');
 
     Route::post('songs', 'SongController@store');
     Route::put('songs/{song}', 'SongController@update');
