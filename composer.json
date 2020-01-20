@@ -17,6 +17,7 @@
         "laravel/ui": "^1.1",
         "symfony/css-selector": "4.4",
         "symfony/mime": "v4.4.0",
+        "mtrajano/laravel-swagger": "^0.6.1",
         "tymon/jwt-auth": "^1.0.0"
     },
     "require-dev": {
