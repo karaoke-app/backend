@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Playlist;
 use App\Song;
+use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -32,7 +33,7 @@ class PlaylistController extends Controller
         return response()->json([
             'success' => true,
             'playlist' => $playlist
-        ]);
+        ], 201);
     }
 
     /**
@@ -147,8 +148,43 @@ class PlaylistController extends Controller
      */
     public function index()
     {
-        $playlist = Playlist::get(['name'])->toArray();
-        return $playlist;
+        $playlists = auth()->user()->playlists()->with(['songs' => function ($q) {
+            $q->select('song_id', 'artist', 'title');
+        }])->get(['id', 'name']);
+
+        return $playlists->toArray();
+    }
+
+    /**
+     * Display playlists from specified user.
+     *
+     * @param User $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function userPlaylist($id)
+    {
+        $playlists = Playlist::where('user_id', $id)
+            ->with('songs:song_id,title,artist');
+
+        $user = auth()->user();
+
+        if (!($user && $user->id === (int) $id)) {
+            $playlists->where('is_private', 0);
+        }
+
+        $playlists = $playlists->get()->toArray();
+
+        if (!$playlists) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Sorry, user did not create any playlists.',
+            ], 400);
+        }
+
+        return response()->json([
+            'success' => true,
+            'playlist' => $playlists,
+        ]);
     }
 
     /**
@@ -167,7 +203,7 @@ class PlaylistController extends Controller
             ], 400);
         }
 
-        $currentPlaylist = $playlist->songs()->get(['title', 'artist', 'cues'])->toArray();
+        $currentPlaylist = $playlist->songs()->get(['song_id', 'title', 'artist'])->toArray();
 
         return response()->json([
             'success' => true,

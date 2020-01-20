@@ -29,42 +29,7 @@ class CategoryController extends Controller
         return response()->json([
             'success' => true,
             'category' => $category
-        ]);
-    }
-
-    /**
-     * Add song to a category.
-     *
-     * @param Category $category_id
-     * @param Song $id
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function add($category_id, $id)
-    {
-        $category = Category::find($category_id);
-
-        if (!$category) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Sorry, category with given id does not exist.'
-            ], 400);
-        }
-
-        $song = Song::where('id', $id)->get();
-
-        if (!$song) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Sorry, song with given id does not exist.'
-            ], 400);
-        }
-
-        $category->songs()->attach($song);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Song was added to the category.'
-        ]);
+        ], 201);
     }
 
     /**
@@ -135,12 +100,12 @@ class CategoryController extends Controller
      */
     public function index()
     {
-        $category = Category::get(['name'])->toArray();
+        $category = Category::get(['id', 'name'])->toArray();
         return $category;
     }
 
     /**
-     * Display songs from specified playlist
+     * Display songs from specified category
      * @param $id
      * @return \Illuminate\Http\JsonResponse
      */
@@ -159,7 +124,7 @@ class CategoryController extends Controller
 
         return response()->json([
             'success' => true,
-            'category' => $currentCategory
+            'category' => $currentCategory,
         ]);
     }
 }

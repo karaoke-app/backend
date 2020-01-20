@@ -1,43 +1,32 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers;
 
 use App\Http\Requests\AuthRequest;
 use App\Http\Requests\Reactivation;
 use App\Mail\VerifyMail;
-use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
+use App\Services\SocialAccountsService;
 use App\User;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 use Laravel\Socialite\Facades\Socialite;
-use App\Http\Controllers\Api\SocialAccountsService;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
 class AuthController extends Controller
 {
     /**
-     * Redirect the user to the Google authentication page.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function redirectToProvider($provider)
-    {
-        return Socialite::driver($provider)->redirect();
-    }
-
-    /**
      * Obtain the user information from SocialMedia.
      *
-     * @param \App\Http\Controllers\Api\SocialAccountsService $accountService
+     * @param SocialAccountsService $accountService
      * @param $provider
      * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
     public function handleProviderCallback(SocialAccountsService $accountService, $provider)
     {
-        $user = Socialite::with($provider)->user();
+        $user = Socialite::driver($provider)->stateless()->user();
 
         $authUser = $accountService->findOrCreate(
             $user,
@@ -81,13 +70,14 @@ class AuthController extends Controller
      * @throws \Illuminate\Validation\ValidationException
      */
 
-
     public function register(AuthRequest $request)
     {
         $user = new User();
         $user->name = $request->name;
         $user->email = $request->email;
         $user->password = bcrypt($request->password);
+        $user->activation_token = Str::random(40);
+
         $user->save();
 
         Mail::to($user->email)->send(new VerifyMail($user));
@@ -98,23 +88,26 @@ class AuthController extends Controller
     /**
      * Account verification
      * @param User $id
-     * @return \Illuminate\Http\RedirectResponse
+     * @param User $activation_token
+     * @return \Illuminate\Http\JsonResponse
      */
 
-    public function activate($id)
+    public function activate($id, $activation_token)
     {
         $user = User::where('id', $id)->first();
 
-        if (empty($user)) {
-            return redirect()->to('/')
-                ->with(['error' => 'Your activation link is either expired or invalid.']);
+        if (!$user) {
+            return response()->json(['error' => 'User does not exist']);
+        }
+
+        if ($user->activation_token != $activation_token) {
+            return response()->json(['error' => 'Invalid token.']);
         }
 
         $user->is_activated = 1;
         $user->save();
 
-        return redirect()->route('login')
-            ->with(['success' => 'Congratulations! Your account is now activated.']);
+        return response()->json(['success' => 'Congratulations! Your account is now activated.']);
     }
 
     /**
@@ -130,21 +123,21 @@ class AuthController extends Controller
         if (!$user) {
             return response()->json([
                 'success' => false,
-                'message' => 'Sorry, user with given email cannot be found.'
+                'message' => 'Sorry, user with given email cannot be found.',
             ], 400);
         }
 
         if (!Hash::check($request->password, $user->password)) {
             return response()->json([
                 'success' => false,
-                'message' => 'Sorry, password does not match with the registered one.'
+                'message' => 'Sorry, password does not match with the registered one.',
             ], 400);
         }
 
         if ($user->is_activated == 1) {
             return response()->json([
                 'success' => false,
-                'message' => 'Your account is already activated. Try to login.'
+                'message' => 'Your account is already activated. Try to login.',
             ], 400);
         }
 
@@ -153,7 +146,7 @@ class AuthController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Your account is reactivated. You can login now.'
+            'message' => 'Your account is reactivated. You can login now.',
         ]);
     }
 
@@ -201,7 +194,7 @@ class AuthController extends Controller
         return response()->json([
             'access_token' => $token,
             'token_type' => 'bearer',
-            'expires_in' => auth()->factory()->getTTL() * 60
+            'expires_in' => auth()->factory()->getTTL() * 60,
         ], 201);
     }
 }

@@ -2,14 +2,29 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Song;
 use App\Rating;
+use App\Song;
+use Illuminate\Http\Request;
 
 class RatingController extends Controller
 {
-    protected $user;
-    protected $song;
+    public function show($id)
+    {
+        $user = auth()->user();
+        $rates = Rating::where('song_id', $id);
+        $data = [
+            'avg' => (float) $rates->avg('rate'),
+            'count' => $rates->count('rate'),
+            'voted' => false,
+        ];
+        if ($user) {
+            $data['voted'] = $rates->where('user_id', $user->id)->count() > 0;
+        }
+        return response()->json([
+            'success' => true,
+            'ratings' => $data,
+        ]);
+    }
 
     public function store(Request $request)
     {
@@ -27,12 +42,12 @@ class RatingController extends Controller
         if ($song->ratings()->save($rating)) {
             return response()->json([
                 'success' => true,
-                'task' => $rating
+                'task' => $rating,
             ]);
         } else {
             return response()->json([
                 'success' => false,
-                'message' => 'Sorry, this song could not be rated.'
+                'message' => 'Sorry, this song could not be rated.',
             ], 500);
         }
     }

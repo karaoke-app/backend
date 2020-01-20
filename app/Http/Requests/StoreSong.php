@@ -32,6 +32,8 @@ class StoreSong extends FormRequest
             'cues.*.endTime' => ['required', 'numeric'],
             'provider_id' => ['required', 'in:vimeo,youtube'],
             'video_id' => ['required', 'alpha_dash', 'unique:songs,video_id'],
+            'categories' => ['required', 'array', 'min:1'],
+            'categories.*' => ['integer', 'exists:categories,id'],
         ];
     }
 }

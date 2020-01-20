@@ -12,13 +12,30 @@ class SongController extends Controller
     /**
      * Display a listing of songs.
      *
-     * @return Response
+     * @param Request $request
+     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
      */
-    public function index()
+    public function index(Request $request)
     {
-        $songs = Song::get(['id', 'slug', 'artist', 'title'])->toArray();
+        $songs = Song::query();
 
-        return $songs;
+        if ($request->has('sort') && $request->get('sort') === 'date_desc') {
+            $songs->orderBy('created_at', 'desc');
+        }
+
+        if ($request->has('query')) {
+            $query = $request->get('query');
+            $songs->where('artist', 'like', '%' . $query . '%')
+                ->orWhere('title', 'like', '%' . $query . '%');
+        }
+
+        if ($request->has('category')) {
+            $category = $request->get('category');
+            $songs->whereHas('categories', function ($q) use ($category) {
+                $q->where('category_id', $category);
+            });
+        }
+        return $songs->paginate(6, ['id', 'slug', 'artist', 'title'])->appends($request->input());
     }
 
     /**
@@ -49,7 +66,13 @@ class SongController extends Controller
             ], 400);
         }
 
-        return $song;
+        $song->plays += 1;
+        $song->save();
+
+        return response()->json([
+            'success' => true,
+            'song' => $song,
+        ]);
     }
 
     /**
@@ -84,18 +107,19 @@ class SongController extends Controller
         $song = new Song();
         $song->artist = $request->artist;
         $song->title = $request->title;
-        $song->cues = $request->cues;
         $song->video_id = $request->video_id;
+        $song->cues = $request->cues;
         $song->provider_id = $request->provider_id;
         $song->is_accepted = 1;
         $merge = $request->artist . ' ' . $request->title;
         $song->slug = Str::slug($merge, '-');
 
         if (auth()->user()->songs()->save($song)) {
+            $song->categories()->attach($request->categories);
             return response()->json([
                 'success' => true,
-                'song' => $song,
-            ]);
+                'song' => $song
+            ], 201);
         } else {
             return response()->json([
                 'success' => false,

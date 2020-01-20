@@ -2,10 +2,8 @@
 
 namespace App;
 
-use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Auth\Passwords\CanResetPassword;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 
 class User extends Authenticatable implements JWTSubject
@@ -37,6 +35,7 @@ class User extends Authenticatable implements JWTSubject
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'is_admin' => 'boolean',
     ];
 
     public function linkedSocialAccounts()
@@ -61,7 +60,11 @@ class User extends Authenticatable implements JWTSubject
      */
     public function getJWTCustomClaims()
     {
-        return [];
+        return [
+            'name' => $this->name,
+            'email' => $this->email,
+            'is_admin' => $this->is_admin,
+            ];
     }
 
     /**
@@ -78,5 +81,10 @@ class User extends Authenticatable implements JWTSubject
     public function playlists()
     {
         return $this->hasMany(Playlist::class);
+    }
+
+    public function isAdmin()
+    {
+        return $this->is_admin;
     }
 }
