@@ -20,7 +20,7 @@ class SongController extends Controller
         $songs = Song::query();
 
         if ($request->has('sort') && $request->get('sort') === 'date_desc') {
-        $songs->orderBy('created_at', 'desc');
+            $songs->orderBy('created_at', 'desc');
         }
 
         if ($request->has('query')) {

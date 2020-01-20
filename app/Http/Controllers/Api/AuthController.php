@@ -67,8 +67,7 @@ class AuthController extends Controller
             return response()->json(['error' => 'Could not create token'], 500);
         }
 
-        if(User::where('email', $request->email)->pluck('is_activated')->first() == 0)
-        {
+        if (User::where('email', $request->email)->pluck('is_activated')->first() == 0) {
             return response()->json(['error' => 'Your account is deactivated'], 401);
         }
 
@@ -142,7 +141,7 @@ class AuthController extends Controller
             ], 400);
         }
 
-        if($user->is_activated == 1) {
+        if ($user->is_activated == 1) {
             return response()->json([
                 'success' => false,
                 'message' => 'Your account is already activated. Try to login.'

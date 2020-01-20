@@ -33,7 +33,7 @@ class PlaylistController extends Controller
         return response()->json([
             'success' => true,
             'playlist' => $playlist
-        ],201);
+        ], 201);
     }
 
     /**
