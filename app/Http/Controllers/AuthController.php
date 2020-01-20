@@ -18,16 +18,6 @@ use Tymon\JWTAuth\Facades\JWTAuth;
 class AuthController extends Controller
 {
     /**
-     * Redirect the user to the Google authentication page.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function redirectToProvider($provider)
-    {
-        return Socialite::driver($provider)->redirect();
-    }
-
-    /**
      * Obtain the user information from SocialMedia.
      *
      * @param SocialAccountsService $accountService
@@ -36,7 +26,7 @@ class AuthController extends Controller
      */
     public function handleProviderCallback(SocialAccountsService $accountService, $provider)
     {
-        $user = Socialite::with($provider)->user();
+        $user = Socialite::with($provider)->stateless()->user();
 
         $authUser = $accountService->findOrCreate(
             $user,

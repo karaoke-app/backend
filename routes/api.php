@@ -17,8 +17,7 @@ use Illuminate\Http\Request;
         return $request->user();
     });*/
 
-    Route::get('/provider/{provider}', 'AuthController@redirectToProvider')->name('redirectToProvider');
-    Route::get('/provider/{provider}/callback', 'AuthController@handleProviderCallback');
+    Route::post('auth/{provider}', 'AuthController@handleProviderCallback');
 
     Route::post('login', 'AuthController@login');
     Route::get('activate/{id}/{activation_token}', 'AuthController@activate')->name('activate');

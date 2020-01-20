@@ -163,20 +163,27 @@ class PlaylistController extends Controller
      */
     public function userPlaylist($id)
     {
-        $playlist = Playlist::where('user_id', $id)->where('is_private', 0)->get();
+        $playlists = Playlist::where('user_id', $id)
+            ->with('songs:song_id,title,artist');
 
-        if (!$playlist) {
+        $user = auth()->user();
+
+        if (!($user && $user->id === (int) $id)) {
+            $playlists->where('is_private', 0);
+        }
+
+        $playlists = $playlists->get()->toArray();
+
+        if (!$playlists) {
             return response()->json([
                 'success' => false,
-                'message' => 'Sorry, user did not create any playlists.'
+                'message' => 'Sorry, user did not create any playlists.',
             ], 400);
         }
 
-        $userPlaylist = $playlist->songs()->get(['song_id', 'title', 'artist'])->toArray();
-
         return response()->json([
             'success' => true,
-            'playlist' => $userPlaylist
+            'playlist' => $playlists,
         ]);
     }
 
